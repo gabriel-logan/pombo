@@ -1,10 +1,12 @@
 {
   "name": "pombo",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Chat with friends by text, voice or video. Join groups, share and play games.",
+  "author": {
+    "name": "Gabriel Logan"
+  },
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

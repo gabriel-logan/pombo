@@ -13,7 +13,7 @@
     "format": "prettier --write **/*.{ts,js,json,md,yml,yaml,mjs}",
     "format:check": "yarn format --check",
     "dev": "nest start --watch",
-    "dev:frontend": "npx vite",
+    "dev:frontend": "npx vite build --watch",
     "debug": "nest start --debug --watch",
     "start": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",

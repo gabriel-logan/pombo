@@ -11,7 +11,7 @@
     "build": "yarn build:frontend && yarn build:backend && yarn build:style",
     "build:frontend": "npx vite build",
     "build:backend": "nest build",
-    "build:style": "npx tailwindcss -i ./src/client/input.css -o ./public/bundles/output.css --minify",
+    "build:style": "npx @tailwindcss/cli -i ./src/client/input.css -o ./public/bundles/output.css --minify",
     "format": "prettier --write **/*.{ts,js,json,md,yml,yaml,mjs}",
     "format:check": "yarn format --check",
     "dev": "nest start --watch",

@@ -8,8 +8,9 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "build": "nest build",
+    "build": "yarn build:frontend && yarn build:backend",
     "build:frontend": "npx vite build",
+    "build:backend": "nest build",
     "format": "prettier --write **/*.{ts,js,json,md,yml,yaml,mjs}",
     "format:check": "yarn format --check",
     "dev": "nest start --watch",

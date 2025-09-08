@@ -9,7 +9,7 @@ export default defineConfig({
       fileName: "main",
       formats: ["iife"],
     },
-    outDir: "public/js",
+    outDir: "public/bundles",
     emptyOutDir: true,
     minify: true,
   },

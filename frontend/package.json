@@ -6,17 +6,30 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "lint": "expo lint",
+    "lint:fix": "npm run lint --fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml}\"",
+    "format:check": "npm run format --check",
+    "test": "jest --verbose",
+    "test:cov": "jest --coverage",
+    "test:ver:cov": "jest --coverage --verbose",
+    "doctor": "npx expo-doctor"
   },
   "dependencies": {
     "expo": "~53.0.22",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
-    "react-native": "0.79.6"
+    "react-native": "0.79.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.0.10",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~9.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.6.2",
     "typescript": "~5.8.3"
   },
   "private": true

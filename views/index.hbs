@@ -12,13 +12,7 @@
     <h1>{{ message }}</h1>
     <p>Server is alive: <span id="server-status"></span></p>
 
-    <script>
-        const socket = io();
-
-        socket.emit('is-alive', (data) => {
-            document.getElementById('server-status').innerText = data.status;
-        });
-    </script>
+    <script src="/js/main.iife.js"></script>
 </body>
 
 </html>

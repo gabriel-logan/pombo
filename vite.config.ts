@@ -11,5 +11,6 @@ export default defineConfig({
     },
     outDir: "public/js",
     emptyOutDir: true,
+    minify: true,
   },
 });

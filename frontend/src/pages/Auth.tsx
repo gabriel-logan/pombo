@@ -77,6 +77,8 @@ export default function AuthPage() {
 
           const data = await response.json();
 
+          console.log(data);
+
           // Save the token in local storage
           await AsyncStorage.setItem("@pombo:token", data.accessToken);
 

@@ -10,7 +10,6 @@ import envGlobal from "./configs/env.global";
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
       load: [envGlobal],
     }),
     AuthModule,

@@ -1,6 +1,7 @@
 import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { EnvSecretConfig } from "src/configs/types";
 
 import {
   GithubAuthRequestDto,
@@ -10,7 +11,7 @@ import {
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService<EnvSecretConfig, true>,
     private readonly httpService: HttpService,
   ) {}
 
@@ -19,18 +20,13 @@ export class AuthService {
   ): Promise<GithubAuthResponseDto> {
     const { code } = githubAuthDto;
 
-    const githubOauthEndpoint = this.configService.get<string>(
-      "GITHUB_OAUTH_ENDPOINT",
-    )!;
-    const githubClientId = this.configService.get<string>("GITHUB_CLIENT_ID");
-    const githubClientSecret = this.configService.get<string>(
-      "GITHUB_CLIENT_SECRET",
-    );
-    const githubRedirectUri = this.configService.get<string>(
-      "GITHUB_REDIRECT_URI",
-    );
-
-    const githubGetUserEndpoint = "https://api.github.com/user";
+    const {
+      oauthEndpoint: githubOauthEndpoint,
+      clientId: githubClientId,
+      redirectUri: githubRedirectUri,
+      clientSecret: githubClientSecret,
+      apiEndpoint: githubGetUserEndpoint,
+    } = this.configService.get<EnvSecretConfig["github"]>("github");
 
     const response = await this.httpService.axiosRef.post<string>(
       githubOauthEndpoint,

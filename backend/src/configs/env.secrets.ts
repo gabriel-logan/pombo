@@ -6,6 +6,7 @@ export default (): EnvSecretConfig => {
     !process.env.GITHUB_CLIENT_ID ||
     !process.env.GITHUB_REDIRECT_URI ||
     !process.env.GITHUB_CLIENT_SECRET ||
+    !process.env.GITHUB_API_ENDPOINT ||
     !process.env.JWT_TOKEN_SECRET ||
     !process.env.JWT_TOKEN_EXPIRATION
   ) {
@@ -23,6 +24,7 @@ export default (): EnvSecretConfig => {
       clientId: process.env.GITHUB_CLIENT_ID,
       redirectUri: process.env.GITHUB_REDIRECT_URI,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      apiEndpoint: process.env.GITHUB_API_ENDPOINT,
     },
   };
 };

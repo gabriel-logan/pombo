@@ -16,6 +16,7 @@ export interface EnvSecretConfig {
     clientId: string;
     redirectUri: string;
     clientSecret: string;
+    apiEndpoint: string;
   };
 }
 

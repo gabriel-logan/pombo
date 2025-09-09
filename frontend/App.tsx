@@ -2,9 +2,9 @@ import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import { Text } from "react-native";
 
-import Main from "./src/Main";
-
 import socket from "./src/lib/socketInstance";
+import { NavigationContainer } from "@react-navigation/native";
+import DrawerNavigator from "./src/router/Drawer";
 
 export default function App() {
   const [serverIsAlive, setServerIsAlive] = useState(false);
@@ -14,10 +14,10 @@ export default function App() {
   });
 
   return (
-    <>
+    <NavigationContainer>
       <Text>Server is {serverIsAlive ? "alive" : "down"}</Text>
       <StatusBar style="auto" />
-      <Main />
-    </>
+      <DrawerNavigator />
+    </NavigationContainer>
   );
 }

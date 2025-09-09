@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import * as Linking from "expo-linking";
 import { FontAwesome6 } from "@expo/vector-icons";
@@ -14,6 +15,8 @@ const githubClientId = process.env.EXPO_PUBLIC_GITHUB_CLIENT_ID;
 const githubRedirectUri = process.env.EXPO_PUBLIC_GITHUB_REDIRECT_URI;
 
 export default function AuthPage() {
+  const [params, setParams] = useState<Linking.QueryParams | null>(null);
+
   const navigation = useNavigation<AuthPageProps["navigation"]>();
 
   async function signInWithGitHub() {
@@ -24,11 +27,59 @@ export default function AuthPage() {
     await Linking.openURL(authUrl);
   }
 
+  useEffect(() => {
+    // Pega a URL inicial usada para abrir o app
+    Linking.getInitialURL().then((url) => {
+      if (url) {
+        const parsed = Linking.parse(url);
+        // parsed.queryParams terá os search params
+        setParams(parsed.queryParams ?? {});
+      }
+    });
+
+    // Listener para quando o app já está aberto
+    const subscription = Linking.addEventListener("url", ({ url }) => {
+      const parsed = Linking.parse(url);
+      setParams(parsed.queryParams ?? {});
+    });
+
+    return () => subscription.remove();
+  }, []);
+
+  useEffect(() => {
+    if (params?.code) {
+      async function getUser() {
+        try {
+          const response = await fetch(
+            "http://localhost:3000/auth/github/sign-in",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              body: JSON.stringify({
+                code: params?.code,
+              }),
+            },
+          );
+
+          const data = await response.json();
+
+          console.log("Access Token Response:", data);
+        } catch (error) {
+          console.error("Erro ao trocar code pelo token:", error);
+        }
+      }
+
+      getUser();
+    }
+  }, [params]);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome</Text>
       <Text style={styles.subtitle}>Sign in to continue</Text>
-
       <View style={styles.buttonContainer}>
         <FontAwesome6.Button
           name="github"

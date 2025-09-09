@@ -8,6 +8,10 @@ const logger = new Logger("Bootstrap");
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: "*",
+  });
+
   const port = 3000;
 
   await app.listen(port);

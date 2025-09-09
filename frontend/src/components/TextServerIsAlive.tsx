@@ -8,15 +8,18 @@ export default function TextServerIsAlive() {
   const [serverIsAlive, setServerIsAlive] = useState(false);
 
   useEffect(() => {
-    socket.emit("check-alive", (data: { status: boolean }) => {
-      setServerIsAlive(data.status);
-    });
-
-    const interval = setInterval(() => {
+    function checkServerAlive() {
       socket.emit("check-alive", (data: { status: boolean }) => {
-        setServerIsAlive(data.status);
+        setServerIsAlive((prev) => (prev !== data.status ? data.status : prev));
       });
-    }, 5000);
+
+      if (socket.disconnected) {
+        setServerIsAlive(false);
+      }
+    }
+
+    checkServerAlive();
+    const interval = setInterval(checkServerAlive, 5000);
 
     return () => clearInterval(interval);
   }, []);

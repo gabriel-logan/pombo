@@ -1,6 +1,9 @@
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Text } from "react-native";
+
+import Main from "./src/Main";
+
 import socket from "./src/lib/socketInstance";
 
 export default function App() {
@@ -11,19 +14,10 @@ export default function App() {
   });
 
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+    <>
       <Text>Server is {serverIsAlive ? "alive" : "down"}</Text>
       <StatusBar style="auto" />
-    </View>
+      <Main />
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

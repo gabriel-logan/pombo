@@ -2,13 +2,13 @@ import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 
 import TextServerIsAlive from "./src/components/TextServerIsAlive";
-import RootDrawerNavigator from "./src/router/RootDrawer";
+import RootNativeStackNavigator from "./src/router/RootNativeStack";
 
 export default function App() {
   return (
     <NavigationContainer>
       <StatusBar style="auto" />
-      <RootDrawerNavigator />
+      <RootNativeStackNavigator />
       <TextServerIsAlive />
     </NavigationContainer>
   );

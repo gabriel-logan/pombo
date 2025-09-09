@@ -1,0 +1,105 @@
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FontAwesome6 } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+
+import { RootNativeStackScreenProps } from "../types/Navigation";
+import colors from "../utils/colors";
+
+type AuthPageProps = RootNativeStackScreenProps<"AuthPage">;
+
+export default function AuthPage() {
+  const navigation = useNavigation<AuthPageProps["navigation"]>();
+
+  async function signInWithGitHub() {
+    console.log("GitHub Sign-In");
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Welcome</Text>
+      <Text style={styles.subtitle}>Sign in to continue</Text>
+
+      <View style={styles.buttonContainer}>
+        <FontAwesome6.Button
+          name="github"
+          backgroundColor="#24292e"
+          onPress={signInWithGitHub}
+          style={styles.githubButton}
+        >
+          <Text style={styles.githubButtonText}>Sign in with GitHub</Text>
+        </FontAwesome6.Button>
+      </View>
+
+      <Temporary navigation={navigation} />
+    </View>
+  );
+}
+
+function Temporary({
+  navigation,
+}: Readonly<{
+  navigation: AuthPageProps["navigation"];
+}>) {
+  return (
+    <TouchableOpacity
+      style={styles.goMainButton}
+      onPress={() =>
+        navigation.navigate("RootDrawerNavigator", { screen: "ProfilePage" })
+      }
+    >
+      <Text style={styles.goMainButtonText}>Go to Main Page</Text>
+    </TouchableOpacity>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.light.backgroundApp,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+
+  title: {
+    fontSize: 36,
+    fontWeight: "bold",
+    color: colors.light.textMain,
+    marginBottom: 10,
+  },
+
+  subtitle: {
+    fontSize: 18,
+    color: colors.light.textSecondary,
+    marginBottom: 40,
+  },
+
+  buttonContainer: {
+    width: "100%",
+    alignItems: "center",
+  },
+
+  githubButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+  },
+
+  githubButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
+  goMainButton: {
+    position: "absolute",
+    bottom: 30,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+
+  goMainButtonText: {
+    color: colors.light.textMain,
+    fontSize: 16,
+    textDecorationLine: "underline",
+  },
+});

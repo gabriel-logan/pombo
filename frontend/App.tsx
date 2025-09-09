@@ -1,9 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { io } from "socket.io-client";
-
-const socket = io("http://localhost:3000");
+import socket from "./src/lib/socketInstance";
 
 export default function App() {
   const [serverIsAlive, setServerIsAlive] = useState(false);

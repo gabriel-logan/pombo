@@ -6,6 +6,7 @@ import { AuthPayload } from "src/common/types";
 import { EnvSecretConfig } from "src/configs/types";
 
 import {
+  FollowerFollowingInfo,
   GithubAuthRequestDto,
   GithubAuthResponseDto,
   GithubAuthUserDataDto,
@@ -53,6 +54,18 @@ export class AuthService {
       },
     );
 
+    const followers = await this.httpService.axiosRef.get<
+      Array<FollowerFollowingInfo>
+    >(`https://api.github.com/users/${user.data.login}/followers`, {
+      headers: { Authorization: `Bearer ${tokenResponse}` },
+    });
+
+    const following = await this.httpService.axiosRef.get<
+      Array<FollowerFollowingInfo>
+    >(`https://api.github.com/users/${user.data.login}/following`, {
+      headers: { Authorization: `Bearer ${tokenResponse}` },
+    });
+
     const payload: AuthPayload = {
       username: user.data.login,
       sub: user.data.id.toString(),
@@ -62,6 +75,28 @@ export class AuthService {
 
     return {
       accessToken,
+      id: user.data.id,
+      username: user.data.login,
+      avatar_url: user.data.avatar_url,
+      url: user.data.html_url,
+      followers: {
+        quantity: followers.data.length,
+        info: followers.data.map((follower) => ({
+          login: follower.login,
+          id: follower.id,
+          avatar_url: follower.avatar_url,
+          url: follower.url,
+        })),
+      },
+      following: {
+        quantity: following.data.length,
+        info: following.data.map((followee) => ({
+          login: followee.login,
+          id: followee.id,
+          avatar_url: followee.avatar_url,
+          url: followee.url,
+        })),
+      },
     };
   }
 }

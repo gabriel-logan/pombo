@@ -2,8 +2,27 @@ export class GithubAuthRequestDto {
   public code: string;
 }
 
+export class FollowerFollowingInfo {
+  public readonly login: string;
+  public readonly id: number;
+  public readonly avatar_url: string;
+  public readonly url: string;
+}
+
 export class GithubAuthResponseDto {
   public readonly accessToken: string;
+  public readonly username: string;
+  public readonly id: number;
+  public readonly avatar_url: string;
+  public readonly url: string;
+  public readonly followers: {
+    quantity: number;
+    info: Array<FollowerFollowingInfo>;
+  };
+  public readonly following: {
+    quantity: number;
+    info: Array<FollowerFollowingInfo>;
+  };
 }
 
 export class GithubAuthUserDataDto {

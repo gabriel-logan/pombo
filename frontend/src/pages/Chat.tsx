@@ -18,11 +18,6 @@ const messages = [
   { id: "4", text: "Bora sim 😄", sender: "me" },
   {
     id: "5",
-    text: "Mensagem gigante aaaaaaaaaaaaaaaaaa aaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-    sender: "other",
-  },
-  {
-    id: "6",
     text: "Mensagem gigante bbbbbbbbbbbbbbbbbb bbbbbbbbbbbb bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb bbbbbbbbbbbb bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
     sender: "me",
   },
@@ -50,6 +45,9 @@ export default function ChatPage() {
         data={messages}
         keyExtractor={(item) => item.id}
         style={styles.chatArea}
+        ListEmptyComponent={
+          <Text style={styles.noMessage}>No messages found.</Text>
+        }
         renderItem={({ item }) => (
           <View
             style={[
@@ -139,6 +137,13 @@ const styles = StyleSheet.create({
   chatArea: {
     flex: 1,
     padding: 14,
+  },
+
+  noMessage: {
+    flex: 1,
+    color: colors.light.textSecondary,
+    fontSize: 16,
+    textAlign: "center",
   },
 
   message: {

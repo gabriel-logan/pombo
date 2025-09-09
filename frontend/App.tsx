@@ -1,9 +1,9 @@
-import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import { Text } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { NavigationContainer } from "@react-navigation/native";
 
 import socket from "./src/lib/socketInstance";
-import { NavigationContainer } from "@react-navigation/native";
 import DrawerNavigator from "./src/router/Drawer";
 
 export default function App() {

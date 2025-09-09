@@ -21,13 +21,13 @@ export default function ChatPage() {
       {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity>
-          <Ionicons name="call" size={24} color="#007AFF" />
+          <Ionicons name="call-outline" size={24} color="#4A90E2" />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Ionicons name="videocam" size={24} color="#007AFF" />
+          <Ionicons name="videocam-outline" size={24} color="#4A90E2" />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Ionicons name="desktop-outline" size={24} color="#007AFF" />
+          <Ionicons name="desktop-outline" size={24} color="#4A90E2" />
         </TouchableOpacity>
       </View>
 
@@ -43,20 +43,52 @@ export default function ChatPage() {
               item.sender === "me" ? styles.myMessage : styles.otherMessage,
             ]}
           >
-            <Text style={styles.messageText}>{item.text}</Text>
+            <Text
+              style={[
+                styles.messageText,
+                item.sender === "me" && { color: "#fff" },
+              ]}
+            >
+              {item.text}
+            </Text>
           </View>
         )}
       />
 
       {/* INPUT AREA */}
       <View style={styles.inputBar}>
+        <TouchableOpacity>
+          <Ionicons
+            name="attach-outline"
+            size={22}
+            color="#666"
+            style={styles.icon}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Ionicons
+            name="image-outline"
+            size={22}
+            color="#666"
+            style={styles.icon}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Ionicons
+            name="videocam-outline"
+            size={22}
+            color="#666"
+            style={styles.icon}
+          />
+        </TouchableOpacity>
+
         <TextInput
           style={styles.input}
           placeholder="Digite uma mensagem..."
-          placeholderTextColor="#888"
+          placeholderTextColor="#aaa"
         />
         <TouchableOpacity style={styles.sendButton}>
-          <Ionicons name="send" size={22} color="#fff" />
+          <Ionicons name="send" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
     </View>
@@ -66,60 +98,74 @@ export default function ChatPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#FAFAFA",
   },
   header: {
     flexDirection: "row",
     justifyContent: "flex-end",
     alignItems: "center",
-    padding: 12,
+    padding: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
+    borderBottomColor: "#eee",
     backgroundColor: "#fff",
-    gap: 16,
+    gap: 20,
+    elevation: 2,
   },
   chatArea: {
     flex: 1,
-    padding: 12,
+    padding: 14,
   },
   message: {
-    maxWidth: "70%",
-    padding: 10,
-    borderRadius: 12,
-    marginVertical: 4,
+    maxWidth: "75%",
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 18,
+    marginVertical: 5,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
   },
   myMessage: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#4A90E2",
     alignSelf: "flex-end",
-    borderBottomRightRadius: 0,
+    borderBottomRightRadius: 6,
   },
   otherMessage: {
-    backgroundColor: "#E5E5EA",
+    backgroundColor: "#E9ECEF",
     alignSelf: "flex-start",
-    borderBottomLeftRadius: 0,
+    borderBottomLeftRadius: 6,
   },
   messageText: {
-    color: "#000",
+    fontSize: 15,
+    color: "#333",
   },
   inputBar: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 8,
+    padding: 10,
     borderTopWidth: 1,
-    borderTopColor: "#ddd",
+    borderTopColor: "#eee",
     backgroundColor: "#fff",
+  },
+  icon: {
+    marginHorizontal: 6,
   },
   input: {
     flex: 1,
     height: 40,
     borderRadius: 20,
-    paddingHorizontal: 12,
-    backgroundColor: "#F0F0F0",
-    marginRight: 8,
+    paddingHorizontal: 14,
+    backgroundColor: "#F2F2F2",
+    marginHorizontal: 8,
+    fontSize: 15,
+    color: "#333",
   },
   sendButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#4A90E2",
     padding: 10,
     borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

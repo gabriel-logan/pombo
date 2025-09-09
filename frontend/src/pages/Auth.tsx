@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
@@ -11,7 +11,7 @@ export default function AuthPage() {
   const navigation = useNavigation<AuthPageProps["navigation"]>();
 
   async function signInWithGitHub() {
-    console.log("GitHub Sign-In");
+    navigation.navigate("RootDrawerNavigator", { screen: "ProfilePage" });
   }
 
   return (
@@ -29,26 +29,7 @@ export default function AuthPage() {
           <Text style={styles.githubButtonText}>Sign in with GitHub</Text>
         </FontAwesome6.Button>
       </View>
-
-      <Temporary navigation={navigation} />
     </View>
-  );
-}
-
-function Temporary({
-  navigation,
-}: Readonly<{
-  navigation: AuthPageProps["navigation"];
-}>) {
-  return (
-    <TouchableOpacity
-      style={styles.goMainButton}
-      onPress={() =>
-        navigation.navigate("RootDrawerNavigator", { screen: "ProfilePage" })
-      }
-    >
-      <Text style={styles.goMainButtonText}>Go to Main Page</Text>
-    </TouchableOpacity>
   );
 }
 
@@ -88,18 +69,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
-  },
-
-  goMainButton: {
-    position: "absolute",
-    bottom: 30,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-  },
-
-  goMainButtonText: {
-    color: colors.light.textMain,
-    fontSize: 16,
-    textDecorationLine: "underline",
   },
 });

@@ -1,14 +1,49 @@
-import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-import socket from "../lib/socketInstance";
+const chats = [
+  {
+    id: "1",
+    name: "Maria Silva",
+    lastMessage: "Oi, tudo bem?",
+    avatar: "https://i.pravatar.cc/100?img=1",
+  },
+  {
+    id: "2",
+    name: "João Souza",
+    lastMessage: "Vamos amanhã?",
+    avatar: "https://i.pravatar.cc/100?img=2",
+  },
+  {
+    id: "3",
+    name: "Grupo Devs",
+    lastMessage: "Código atualizado no GitHub",
+    avatar: "https://i.pravatar.cc/100?img=3",
+  },
+];
 
-export default function Main() {
+export default function MainPage() {
   return (
     <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <Ionicons name="add-circle" size={24} color="black" />
+      <FlatList
+        data={chats}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity style={styles.chatItem}>
+            <Image source={{ uri: item.avatar }} style={styles.avatar} />
+            <View style={styles.textContainer}>
+              <Text style={styles.name}>{item.name}</Text>
+              <Text style={styles.lastMessage}>{item.lastMessage}</Text>
+            </View>
+          </TouchableOpacity>
+        )}
+      />
     </View>
   );
 }
@@ -17,7 +52,31 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  chatItem: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginRight: 12,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#000",
+  },
+  lastMessage: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 2,
   },
 });

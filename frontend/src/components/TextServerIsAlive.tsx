@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Text } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Octicons } from "@expo/vector-icons";
 
 import socket from "../lib/socketInstance";
 import colors from "../utils/colors";
@@ -24,17 +25,22 @@ export default function TextServerIsAlive() {
     return () => clearInterval(interval);
   }, []);
   return (
-    <Text
-      style={{
-        color: serverIsAlive
-          ? colors.light.statusSuccess
-          : colors.light.statusError,
-        position: "absolute",
-        top: 10,
-        right: 10,
-      }}
-    >
-      Server is {serverIsAlive ? "alive" : "down"}
-    </Text>
+    <View style={styles.container}>
+      <Octicons
+        name="dot-fill"
+        size={26}
+        color={
+          serverIsAlive ? colors.light.statusSuccess : colors.light.statusError
+        }
+      />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    position: "absolute",
+    top: 6,
+    right: 10,
+  },
+});

@@ -1,11 +1,13 @@
 import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { JwtService } from "@nestjs/jwt";
 import { EnvSecretConfig } from "src/configs/types";
 
 import {
   GithubAuthRequestDto,
   GithubAuthResponseDto,
+  GithubAuthUserDataDto,
 } from "./dto/github-auth.dto";
 
 @Injectable()
@@ -13,6 +15,7 @@ export class AuthService {
   constructor(
     private readonly configService: ConfigService<EnvSecretConfig, true>,
     private readonly httpService: HttpService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async githubSignIn(
@@ -40,7 +43,7 @@ export class AuthService {
 
     const tokenResponse = response.data.split("&")[0].split("=")[1];
 
-    const user = await this.httpService.axiosRef.get<GithubAuthResponseDto>(
+    const user = await this.httpService.axiosRef.get<GithubAuthUserDataDto>(
       githubGetUserEndpoint,
       {
         headers: {
@@ -49,6 +52,12 @@ export class AuthService {
       },
     );
 
-    return user.data;
+    const payload = { username: user.data.login, sub: user.data.id };
+
+    const accessToken = await this.jwtService.signAsync(payload);
+
+    return {
+      accessToken,
+    };
   }
 }

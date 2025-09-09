@@ -3,6 +3,10 @@ export class GithubAuthRequestDto {
 }
 
 export class GithubAuthResponseDto {
+  public readonly accessToken: string;
+}
+
+export class GithubAuthUserDataDto {
   public readonly login: string;
   public readonly id: number;
   public readonly node_id: string;

@@ -9,7 +9,7 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "lint:fix": "npm run lint --fix",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml}\"",
+    "format": "prettier --write **/*.{js,jsx,ts,tsx,json,md,yml}",
     "format:check": "npm run format --check",
     "test": "jest --verbose",
     "test:cov": "jest --coverage",

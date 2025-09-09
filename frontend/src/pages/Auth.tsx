@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import * as Linking from "expo-linking";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -7,12 +7,11 @@ import { v4 as uuidv4 } from "uuid";
 
 import { RootNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
+import { githubPublic } from "../utils/env/github";
 
 type AuthPageProps = RootNativeStackScreenProps<"AuthPage">;
 
-const githubOauthEndpoint = process.env.EXPO_PUBLIC_GITHUB_OAUTH_ENDPOINT;
-const githubClientId = process.env.EXPO_PUBLIC_GITHUB_CLIENT_ID;
-const githubRedirectUri = process.env.EXPO_PUBLIC_GITHUB_REDIRECT_URI;
+const { githubOauthEndpoint, githubClientId, githubRedirectUri } = githubPublic;
 
 export default function AuthPage() {
   const [params, setParams] = useState<Linking.QueryParams | null>(null);
@@ -28,19 +27,18 @@ export default function AuthPage() {
   }
 
   useEffect(() => {
-    // Pega a URL inicial usada para abrir o app
     Linking.getInitialURL().then((url) => {
       if (url) {
         const parsed = Linking.parse(url);
-        // parsed.queryParams terá os search params
-        setParams(parsed.queryParams ?? {});
+
+        setParams(parsed.queryParams);
       }
     });
 
-    // Listener para quando o app já está aberto
     const subscription = Linking.addEventListener("url", ({ url }) => {
       const parsed = Linking.parse(url);
-      setParams(parsed.queryParams ?? {});
+
+      setParams(parsed.queryParams);
     });
 
     return () => subscription.remove();
@@ -67,8 +65,11 @@ export default function AuthPage() {
           const data = await response.json();
 
           console.log("Access Token Response:", data);
+
+          Alert.alert("Success", "You have been signed in successfully!");
         } catch (error) {
           console.error("Erro ao trocar code pelo token:", error);
+          Alert.alert("Error", "Failed to sign in. Please try again.");
         }
       }
 

@@ -9,6 +9,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 
 import { ChatNativeStackScreenProps } from "../types/Navigation";
+import colors from "../utils/colors";
 
 const chats = [
   {
@@ -61,32 +62,37 @@ export default function MainPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.light.backgroundCard,
   },
+
   chatItem: {
     flexDirection: "row",
     alignItems: "center",
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: colors.light.borderLight,
   },
+
   avatar: {
     width: 48,
     height: 48,
     borderRadius: 24,
     marginRight: 12,
   },
+
   textContainer: {
     flex: 1,
   },
+
   name: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#000",
+    color: colors.light.textMain,
   },
+
   lastMessage: {
     fontSize: 14,
-    color: "#666",
+    color: colors.light.textSecondary,
     marginTop: 2,
   },
 });

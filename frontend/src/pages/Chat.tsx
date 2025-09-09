@@ -9,6 +9,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 
 import BtnGoBack from "../components/BtnGoBack";
+import colors from "../utils/colors";
 
 const messages = [
   { id: "1", text: "Oi, tudo bem?", sender: "other" },
@@ -110,71 +111,81 @@ export default function ChatPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: colors.light.backgroundApp,
   },
+
   header: {
     flexDirection: "row",
     justifyContent: "flex-end",
     alignItems: "center",
     padding: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-    backgroundColor: "#fff",
+    borderBottomColor: colors.light.borderLight,
+    backgroundColor: colors.light.backgroundCard,
     gap: 20,
     elevation: 2,
   },
+
   chatArea: {
     flex: 1,
     padding: 14,
   },
+
   message: {
     maxWidth: "75%",
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 18,
     marginVertical: 5,
-    shadowColor: "#000",
+    shadowColor: colors.light.textMain,
     shadowOpacity: 0.05,
     shadowRadius: 3,
     elevation: 1,
   },
+
   myMessage: {
-    backgroundColor: "#4A90E2",
+    backgroundColor: colors.light.backgroundMyMessage,
     alignSelf: "flex-end",
     borderBottomRightRadius: 6,
   },
+
   otherMessage: {
-    backgroundColor: "#E9ECEF",
+    backgroundColor: colors.light.backgroundOtherMessage,
     alignSelf: "flex-start",
     borderBottomLeftRadius: 6,
   },
+
   messageText: {
     fontSize: 15,
-    color: "#333",
+    color: colors.light.textMain,
   },
+
   inputBar: {
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
     borderTopWidth: 1,
-    borderTopColor: "#eee",
-    backgroundColor: "#fff",
+    borderTopColor: colors.light.borderLight,
+    backgroundColor: colors.light.backgroundCard,
   },
+
   icon: {
     marginHorizontal: 6,
   },
+
   input: {
     flex: 1,
     height: 40,
     borderRadius: 20,
     paddingHorizontal: 14,
-    backgroundColor: "#F2F2F2",
+    backgroundColor: colors.light.backgroundInput,
     marginHorizontal: 8,
     fontSize: 15,
-    color: "#333",
+    color: colors.light.textMain,
   },
+
   sendButton: {
-    backgroundColor: "#4A90E2",
+    backgroundColor: colors.light.brandPrimary,
     padding: 10,
     borderRadius: 20,
     justifyContent: "center",

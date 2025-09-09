@@ -11,7 +11,7 @@ export default function AuthPage() {
   const navigation = useNavigation<AuthPageProps["navigation"]>();
 
   async function signInWithGitHub() {
-    navigation.navigate("RootDrawerNavigator", { screen: "ProfilePage" });
+    navigation.navigate("RootDrawerNavigator");
   }
 
   return (

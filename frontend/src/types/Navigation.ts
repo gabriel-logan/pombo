@@ -8,7 +8,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 // Root Stack Navigator
 export type RootNativeStackParamList = {
   AuthPage: undefined;
-  RootDrawerNavigator: NavigatorScreenParams<RootDrawerParamList>;
+  RootDrawerNavigator: NavigatorScreenParams<RootDrawerParamList> | undefined;
 };
 
 export type RootNativeStackScreenProps<
@@ -18,7 +18,9 @@ export type RootNativeStackScreenProps<
 // Root Drawer Navigator
 export type RootDrawerParamList = {
   ProfilePage: undefined;
-  ChatNativeStackNavigator: NavigatorScreenParams<ChatNativeStackParamList>;
+  ChatNativeStackNavigator:
+    | NavigatorScreenParams<ChatNativeStackParamList>
+    | undefined;
   SettingsPage: undefined;
 };
 

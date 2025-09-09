@@ -15,9 +15,18 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Text>Server is {serverIsAlive ? "alive" : "down"}</Text>
       <StatusBar style="auto" />
       <DrawerNavigator />
+      <Text
+        style={{
+          color: serverIsAlive ? "green" : "red",
+          position: "absolute",
+          top: 10,
+          right: 10,
+        }}
+      >
+        Server is {serverIsAlive ? "alive" : "down"}
+      </Text>
     </NavigationContainer>
   );
 }

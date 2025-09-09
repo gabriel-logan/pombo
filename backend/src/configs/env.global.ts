@@ -1,14 +1,7 @@
 import type { EnvGlobalConfig } from "./types";
 
 export default (): EnvGlobalConfig => {
-  if (
-    !process.env.GITHUB_OAUTH_ENDPOINT ||
-    !process.env.GITHUB_CLIENT_ID ||
-    !process.env.GITHUB_REDIRECT_URI ||
-    !process.env.GITHUB_CLIENT_SECRET ||
-    !process.env.SERVER_PORT ||
-    !process.env.NODE_ENV
-  ) {
+  if (!process.env.SERVER_PORT || !process.env.NODE_ENV) {
     throw new Error("Missing required environment variables");
   }
 
@@ -21,12 +14,6 @@ export default (): EnvGlobalConfig => {
   }
 
   return {
-    github: {
-      oauthEndpoint: process.env.GITHUB_OAUTH_ENDPOINT,
-      clientId: process.env.GITHUB_CLIENT_ID,
-      redirectUri: process.env.GITHUB_REDIRECT_URI,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    },
     server: {
       nodeEnv: process.env.NODE_ENV,
       port: parseInt(process.env.SERVER_PORT, 10),

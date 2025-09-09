@@ -6,7 +6,9 @@ import type {
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 export type RootDrawerParamList = {
+  ProfilePage: undefined;
   ChatNativeStackNavigator: NavigatorScreenParams<ChatNativeStackParamList>;
+  SettingsPage: undefined;
 };
 
 export type RootDrawerScreenProps<T extends keyof RootDrawerParamList> =

@@ -1,8 +1,9 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
 
+import type { RootDrawerParamList } from "../types/Navigation";
 import ChatNativeStackNavigator from "./ChatNativeStack";
 
-const Drawer = createDrawerNavigator();
+const Drawer = createDrawerNavigator<RootDrawerParamList>();
 
 export default function RootDrawerNavigator() {
   return (

@@ -8,6 +8,8 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
+import { ChatNativeStackScreenProps } from "../types/Navigation";
+
 const chats = [
   {
     id: "1",
@@ -29,8 +31,10 @@ const chats = [
   },
 ];
 
+type MainPageProps = ChatNativeStackScreenProps<"MainPage">;
+
 export default function MainPage() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<MainPageProps["navigation"]>();
 
   return (
     <View style={styles.container}>
@@ -40,7 +44,7 @@ export default function MainPage() {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.chatItem}
-            onPress={() => navigation.navigate("Chat")}
+            onPress={() => navigation.navigate("ChatPage")}
           >
             <Image source={{ uri: item.avatar }} style={styles.avatar} />
             <View style={styles.textContainer}>

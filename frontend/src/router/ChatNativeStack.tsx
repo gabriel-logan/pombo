@@ -2,14 +2,15 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import ChatPage from "../pages/Chat";
 import MainPage from "../pages/Main";
+import type { ChatNativeStackParamList } from "../types/Navigation";
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<ChatNativeStackParamList>();
 
 export default function ChatNativeStackNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Main" component={MainPage} />
-      <Stack.Screen name="Chat" component={ChatPage} />
+      <Stack.Screen name="MainPage" component={MainPage} />
+      <Stack.Screen name="ChatPage" component={ChatPage} />
     </Stack.Navigator>
   );
 }

@@ -62,6 +62,15 @@ export default function ChatPage() {
       <View style={styles.inputBar}>
         <TouchableOpacity>
           <Ionicons
+            name="happy-outline"
+            size={24}
+            color="#666"
+            style={styles.icon}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity>
+          <Ionicons
             name="attach-outline"
             size={22}
             color="#666"

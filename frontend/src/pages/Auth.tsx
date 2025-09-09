@@ -6,6 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { v4 as uuidv4 } from "uuid";
 
+import type { AuthUser } from "../types/Auth";
 import { RootNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
 import { githubPublic } from "../utils/env/github";
@@ -75,19 +76,19 @@ export default function AuthPage() {
             throw new Error("Failed to fetch access token");
           }
 
-          const data = await response.json();
+          const data = (await response.json()) as AuthUser;
 
           console.log(data);
 
           // Save the token in local storage
-          await AsyncStorage.setItem("@pombo:token", data.accessToken);
+          await AsyncStorage.setItem("@pombo", JSON.stringify(data));
 
           navigation.reset({
             index: 0,
             routes: [{ name: "RootDrawerNavigator" }],
           });
         } catch {
-          await AsyncStorage.removeItem("@pombo:token");
+          await AsyncStorage.removeItem("@pombo");
 
           consumedRef.current = false;
         } finally {

@@ -30,6 +30,12 @@ const chats = [
     lastMessage: "Código atualizado no GitHub",
     avatar: "https://i.pravatar.cc/100?img=3",
   },
+  {
+    id: "4",
+    name: "Ana Pereira",
+    lastMessage: "",
+    avatar: "https://i.pravatar.cc/100?img=4",
+  },
 ];
 
 type MainPageProps = ChatNativeStackScreenProps<"MainPage">;

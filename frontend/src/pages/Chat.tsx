@@ -16,6 +16,16 @@ const messages = [
   { id: "2", text: "Tudo ótimo! E você?", sender: "me" },
   { id: "3", text: "Também! Bora marcar algo?", sender: "other" },
   { id: "4", text: "Bora sim 😄", sender: "me" },
+  {
+    id: "5",
+    text: "Mensagem gigante aaaaaaaaaaaaaaaaaa aaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    sender: "other",
+  },
+  {
+    id: "6",
+    text: "Mensagem gigante bbbbbbbbbbbbbbbbbb bbbbbbbbbbbb bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb bbbbbbbbbbbb bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    sender: "me",
+  },
 ];
 
 export default function ChatPage() {

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import * as Linking from "expo-linking";
 import { FontAwesome6 } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { v4 as uuidv4 } from "uuid";
 
@@ -62,20 +63,30 @@ export default function AuthPage() {
             },
           );
 
+          if (!response.ok) {
+            throw new Error("Failed to fetch access token");
+          }
+
           const data = await response.json();
 
-          console.log("Access Token Response:", data);
+          // Save the token in local storage
+          await AsyncStorage.setItem("@pombo:token", data.accessToken);
 
-          Alert.alert("Success", "You have been signed in successfully!");
-        } catch (error) {
-          console.error("Erro ao trocar code pelo token:", error);
-          Alert.alert("Error", "Failed to sign in. Please try again.");
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "RootDrawerNavigator" }],
+          });
+        } catch {
+          await AsyncStorage.removeItem("@pombo:token");
+        } finally {
+          // Clean up the URL parameters
+          setParams(null);
         }
       }
 
       getUser();
     }
-  }, [params]);
+  }, [navigation, params]);
 
   return (
     <View style={styles.container}>

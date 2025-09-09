@@ -8,6 +8,8 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+import BtnGoBack from "../components/BtnGoBack";
+
 const messages = [
   { id: "1", text: "Oi, tudo bem?", sender: "other" },
   { id: "2", text: "Tudo ótimo! E você?", sender: "me" },
@@ -20,6 +22,7 @@ export default function ChatPage() {
     <View style={styles.container}>
       {/* HEADER */}
       <View style={styles.header}>
+        <BtnGoBack />
         <TouchableOpacity>
           <Ionicons name="call-outline" size={24} color="#4A90E2" />
         </TouchableOpacity>

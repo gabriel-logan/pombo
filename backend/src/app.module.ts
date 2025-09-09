@@ -5,11 +5,13 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
 import { ChatModule } from "./chat/chat.module";
+import envGlobal from "./configs/env.global";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      load: [envGlobal],
     }),
     AuthModule,
     ChatModule,

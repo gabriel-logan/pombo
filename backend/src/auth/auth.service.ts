@@ -2,6 +2,7 @@ import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
+import { AuthPayload } from "src/common/types";
 import { EnvSecretConfig } from "src/configs/types";
 
 import {
@@ -52,7 +53,10 @@ export class AuthService {
       },
     );
 
-    const payload = { username: user.data.login, sub: user.data.id };
+    const payload: AuthPayload = {
+      username: user.data.login,
+      sub: user.data.id.toString(),
+    };
 
     const accessToken = await this.jwtService.signAsync(payload);
 

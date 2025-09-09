@@ -9,8 +9,16 @@ const Stack = createNativeStackNavigator<ChatNativeStackParamList>();
 export default function ChatNativeStackNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="MainPage" component={MainPage} />
-      <Stack.Screen name="ChatPage" component={ChatPage} />
+      <Stack.Screen
+        name="MainPage"
+        component={MainPage}
+        options={{ title: "Main" }}
+      />
+      <Stack.Screen
+        name="ChatPage"
+        component={ChatPage}
+        options={{ title: "Chat" }}
+      />
     </Stack.Navigator>
   );
 }

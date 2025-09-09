@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import * as Linking from "expo-linking";
 import { FontAwesome6 } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -17,6 +17,8 @@ const { githubOauthEndpoint, githubClientId, githubRedirectUri } = githubPublic;
 export default function AuthPage() {
   const [params, setParams] = useState<Linking.QueryParams | null>(null);
 
+  const consumedRef = useRef(false); // To prevent multiple consumptions of the same code
+
   const navigation = useNavigation<AuthPageProps["navigation"]>();
 
   async function signInWithGitHub() {
@@ -27,19 +29,25 @@ export default function AuthPage() {
     await Linking.openURL(authUrl);
   }
 
-  useEffect(() => {
-    Linking.getInitialURL().then((url) => {
-      if (url) {
-        const parsed = Linking.parse(url);
+  function handleUrlString(url?: string | null) {
+    if (!url) return;
 
-        setParams(parsed.queryParams);
-      }
-    });
+    const parsed = Linking.parse(url);
 
-    const subscription = Linking.addEventListener("url", ({ url }) => {
-      const parsed = Linking.parse(url);
+    const code = parsed.queryParams?.code;
+
+    if (code && !consumedRef.current) {
+      consumedRef.current = true;
 
       setParams(parsed.queryParams);
+    }
+  }
+
+  useEffect(() => {
+    Linking.getInitialURL().then(handleUrlString);
+
+    const subscription = Linking.addEventListener("url", ({ url }) => {
+      handleUrlString(url);
     });
 
     return () => subscription.remove();
@@ -78,9 +86,21 @@ export default function AuthPage() {
           });
         } catch {
           await AsyncStorage.removeItem("@pombo:token");
+
+          consumedRef.current = false;
         } finally {
           // Clean up the URL parameters
           setParams(null);
+
+          // Clean the URL in web environment
+          if (
+            Platform.OS === "web" &&
+            typeof window !== "undefined" &&
+            window.history?.replaceState
+          ) {
+            const clean = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, clean);
+          }
         }
       }
 

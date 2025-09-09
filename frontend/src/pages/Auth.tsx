@@ -1,17 +1,27 @@
 import { StyleSheet, Text, View } from "react-native";
+import * as Linking from "expo-linking";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { v4 as uuidv4 } from "uuid";
 
 import { RootNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
 
 type AuthPageProps = RootNativeStackScreenProps<"AuthPage">;
 
+const githubOauthEndpoint = process.env.EXPO_PUBLIC_GITHUB_OAUTH_ENDPOINT;
+const githubClientId = process.env.EXPO_PUBLIC_GITHUB_CLIENT_ID;
+const githubRedirectUri = process.env.EXPO_PUBLIC_GITHUB_REDIRECT_URI;
+
 export default function AuthPage() {
   const navigation = useNavigation<AuthPageProps["navigation"]>();
 
   async function signInWithGitHub() {
-    navigation.navigate("RootDrawerNavigator");
+    const randomState = uuidv4();
+
+    const authUrl = `${githubOauthEndpoint}?client_id=${githubClientId}&redirect_uri=${githubRedirectUri}&state=${randomState}`;
+
+    await Linking.openURL(authUrl);
   }
 
   return (

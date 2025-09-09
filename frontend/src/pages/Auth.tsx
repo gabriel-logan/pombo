@@ -22,7 +22,7 @@ export default function AuthPage() {
       <View style={styles.buttonContainer}>
         <FontAwesome6.Button
           name="github"
-          backgroundColor="#24292e"
+          backgroundColor={colors.light.btnGithubBackground}
           onPress={signInWithGitHub}
           style={styles.githubButton}
         >
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   },
 
   githubButtonText: {
-    color: "#fff",
+    color: colors.light.btnGithubText,
     fontSize: 16,
     fontWeight: "600",
   },

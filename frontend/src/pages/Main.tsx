@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 const chats = [
   {
@@ -29,13 +30,18 @@ const chats = [
 ];
 
 export default function MainPage() {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
       <FlatList
         data={chats}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.chatItem}>
+          <TouchableOpacity
+            style={styles.chatItem}
+            onPress={() => navigation.navigate("Chat")}
+          >
             <Image source={{ uri: item.avatar }} style={styles.avatar} />
             <View style={styles.textContainer}>
               <Text style={styles.name}>{item.name}</Text>

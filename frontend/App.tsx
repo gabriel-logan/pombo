@@ -4,7 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 
 import socket from "./src/lib/socketInstance";
-import DrawerNavigator from "./src/router/Drawer";
+import RootDrawerNavigator from "./src/router/RootDrawer";
 
 export default function App() {
   const [serverIsAlive, setServerIsAlive] = useState(false);
@@ -16,7 +16,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <StatusBar style="auto" />
-      <DrawerNavigator />
+      <RootDrawerNavigator />
       <Text
         style={{
           color: serverIsAlive ? "green" : "red",

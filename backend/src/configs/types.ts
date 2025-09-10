@@ -13,10 +13,17 @@ export interface EnvSecretConfig {
 
   github: {
     oauthEndpoint: string;
-    clientId: string;
-    redirectUri: string;
-    clientSecret: string;
     apiEndpoint: string;
+    web: {
+      clientId: string;
+      redirectUri: string;
+      clientSecret: string;
+    };
+    android: {
+      clientId: string;
+      redirectUri: string;
+      clientSecret: string;
+    };
   };
 }
 

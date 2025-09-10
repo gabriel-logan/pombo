@@ -3,15 +3,21 @@ import { Platform } from "react-native";
 const githubOauthEndpoint: string | undefined =
   process.env.EXPO_PUBLIC_GITHUB_OAUTH_ENDPOINT;
 
-const githubClientId: string | undefined =
-  process.env.EXPO_PUBLIC_GITHUB_CLIENT_ID;
+let githubClientId: string | undefined;
 
 let githubRedirectUri: string | undefined;
 
-if (Platform.OS === "web") {
-  githubRedirectUri = process.env.EXPO_PUBLIC_GITHUB_REDIRECT_WEB_URI;
-} else if (Platform.OS === "android") {
-  githubRedirectUri = process.env.EXPO_PUBLIC_GITHUB_REDIRECT_ANDROID_URI;
+switch (Platform.OS) {
+  case "web":
+    githubClientId = process.env.EXPO_PUBLIC_GITHUB_CLIENT_ID_WEB;
+    githubRedirectUri = process.env.EXPO_PUBLIC_GITHUB_REDIRECT_URI_WEB;
+    break;
+  case "android":
+    githubClientId = process.env.EXPO_PUBLIC_GITHUB_CLIENT_ID_ANDROID;
+    githubRedirectUri = process.env.EXPO_PUBLIC_GITHUB_REDIRECT_URI_ANDROID;
+    break;
+  default:
+    throw new Error(`Unsupported platform: ${Platform.OS}`);
 }
 
 if (!githubOauthEndpoint || !githubClientId || !githubRedirectUri) {

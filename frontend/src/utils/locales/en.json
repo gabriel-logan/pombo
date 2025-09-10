@@ -1,16 +1,16 @@
 {
-    "Welcome": "Welcome",
-    "SignIn": "Sign In",
-    "SignOut": "Sign Out",
-    "Sign in to continue": "Sign in to continue",
-    "Sign in with Github": "Sign in with GitHub",
-    "Username": "Username",
+  "Welcome": "Welcome",
+  "SignIn": "Sign In",
+  "SignOut": "Sign Out",
+  "Sign in to continue": "Sign in to continue",
+  "Sign in with Github": "Sign in with GitHub",
+  "Username": "Username",
 
-    "Main": "Main",
-    "Profile": "Profile",
-    "Settings": "Settings",
-    "Chat": "Chat",
-    "No messages yet": "No messages yet",
-    "Back": "Back",
-    "Type a message await": "Type a message..."
+  "Main": "Main",
+  "Profile": "Profile",
+  "Settings": "Settings",
+  "Chat": "Chat",
+  "No messages yet": "No messages yet",
+  "Back": "Back",
+  "Type a message await": "Type a message..."
 }

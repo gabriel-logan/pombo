@@ -23,9 +23,6 @@ export default function BtnGoBack() {
 
 const styles = StyleSheet.create({
   container: {
-    position: "absolute",
-    left: 14,
-    top: 14,
     flexDirection: "row",
     alignItems: "center",
     gap: 6,

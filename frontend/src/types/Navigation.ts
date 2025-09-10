@@ -33,7 +33,12 @@ export type RootDrawerScreenProps<T extends keyof RootDrawerParamList> =
 // Chat Stack Navigator
 export type ChatNativeStackParamList = {
   MainPage: undefined;
-  ChatPage: { myId: number; otherId: number };
+  ChatPage: {
+    myId: number;
+    otherId: number;
+    otherAvatarUrl: string;
+    otherUsername: string;
+  };
 };
 
 export type ChatNativeStackScreenProps<

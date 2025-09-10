@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 
@@ -25,7 +26,7 @@ function getRoomId(userId1: number, userId2: number) {
 export default function ChatPage() {
   const { params } = useRoute<ChatPageProps["route"]>();
 
-  const { myId, otherId } = params;
+  const { myId, otherId, otherAvatarUrl, otherUsername } = params;
 
   const roomId = getRoomId(myId, otherId);
 
@@ -103,15 +104,26 @@ export default function ChatPage() {
       {/* HEADER */}
       <View style={styles.header}>
         <BtnGoBack />
-        <TouchableOpacity>
-          <Ionicons name="call-outline" size={24} color="#4A90E2" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="videocam-outline" size={24} color="#4A90E2" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="desktop-outline" size={24} color="#4A90E2" />
-        </TouchableOpacity>
+
+        <View style={styles.headerTitle}>
+          <Image source={{ uri: otherAvatarUrl }} style={styles.avatar} />
+          <View>
+            <Text style={styles.username}>{otherUsername}</Text>
+            <Text>Status: Online</Text>
+          </View>
+        </View>
+
+        <View style={styles.iconsRight}>
+          <TouchableOpacity>
+            <Ionicons name="call-outline" size={24} color="#4A90E2" />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Ionicons name="videocam-outline" size={24} color="#4A90E2" />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Ionicons name="desktop-outline" size={24} color="#4A90E2" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* CHAT MESSAGES */}
@@ -139,6 +151,11 @@ export default function ChatPage() {
           </View>
         )}
       />
+
+      {/* Typing */}
+      <View style={styles.typingContainer}>
+        <Text style={styles.typingText}>{otherUsername} is typing...</Text>
+      </View>
 
       {/* INPUT AREA */}
       <View style={styles.inputBar}>
@@ -202,19 +219,53 @@ const styles = StyleSheet.create({
 
   header: {
     flexDirection: "row",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     alignItems: "center",
-    padding: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: colors.light.borderLight,
     backgroundColor: colors.light.backgroundCard,
-    gap: 20,
     elevation: 2,
+  },
+
+  headerTitle: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+
+  avatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.light.borderLight,
+  },
+
+  username: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: colors.light.textMain,
+  },
+
+  iconsRight: {
+    flexDirection: "row",
+    gap: 20,
   },
 
   chatArea: {
     flex: 1,
     padding: 14,
+  },
+
+  typingContainer: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+  },
+
+  typingText: {
+    fontStyle: "italic",
+    color: colors.light.textSecondary,
   },
 
   noMessage: {

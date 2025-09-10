@@ -34,6 +34,8 @@ export default function MainPage() {
               navigation.navigate("ChatPage", {
                 myId: user!.id,
                 otherId: item.id,
+                otherAvatarUrl: item.avatar_url,
+                otherUsername: item.login,
               })
             }
           >

@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import type { AuthUser } from "../types/Auth";
+import { authStoreKey } from "../utils/constants";
 
 interface AuthState {
   token: string | null;
@@ -13,8 +14,6 @@ interface AuthState {
   restoreSession: () => Promise<void>;
 }
 
-const storageKey = "@pombo";
-
 export const useAuthStore: AuthState = {
   token: null,
   isLoggedIn: false,
@@ -24,18 +23,18 @@ export const useAuthStore: AuthState = {
     useAuthStore.token = user.accessToken;
     useAuthStore.isLoggedIn = true;
     useAuthStore.user = user;
-    await AsyncStorage.setItem(storageKey, JSON.stringify(user));
+    await AsyncStorage.setItem(authStoreKey, JSON.stringify(user));
   },
 
   signOut: async () => {
     useAuthStore.token = null;
     useAuthStore.isLoggedIn = false;
     useAuthStore.user = null;
-    await AsyncStorage.removeItem(storageKey);
+    await AsyncStorage.removeItem(authStoreKey);
   },
 
   restoreSession: async () => {
-    const userData = await AsyncStorage.getItem(storageKey);
+    const userData = await AsyncStorage.getItem(authStoreKey);
 
     if (userData) {
       let user: AuthUser;

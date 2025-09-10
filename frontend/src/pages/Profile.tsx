@@ -11,6 +11,7 @@ import { useNavigation } from "@react-navigation/native";
 
 import { temporaryUserStore } from "../stores/temporaryUserStore";
 import { AuthUser } from "../types/Auth";
+import colors from "../utils/colors";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "#f0f2f5",
+    backgroundColor: colors.light.backgroundApp,
   },
 
   avatar: {
@@ -78,45 +79,46 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     marginBottom: 20,
     borderWidth: 2,
-    borderColor: "#ccc",
+    borderColor: colors.light.borderLight,
   },
 
   name: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 10,
+    color: colors.light.textMain,
   },
 
   followers: {
     fontSize: 16,
-    color: "#555",
+    color: colors.light.textSecondary,
     textAlign: "center",
     marginBottom: 10,
   },
 
   followings: {
     fontSize: 16,
-    color: "#555",
+    color: colors.light.textSecondary,
     textAlign: "center",
     marginBottom: 20,
   },
 
   github: {
     fontSize: 16,
-    color: "#0366d6",
+    color: colors.light.link,
     textDecorationLine: "underline",
     marginBottom: 30,
   },
 
   logoutButton: {
-    backgroundColor: "#ff4757",
+    backgroundColor: colors.light.btnLogoutBackground,
     paddingVertical: 12,
     paddingHorizontal: 40,
     borderRadius: 25,
   },
 
   logoutText: {
-    color: "#fff",
+    color: colors.light.btnLogoutText,
     fontWeight: "bold",
     fontSize: 16,
   },

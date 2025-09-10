@@ -40,6 +40,9 @@ export default function MainPage() {
       <FlatList
         data={followings}
         keyExtractor={(item) => item.id.toString()}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No followings found</Text>
+        }
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.chatItem}
@@ -61,6 +64,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.light.backgroundCard,
+  },
+
+  emptyText: {
+    textAlign: "center",
+    marginTop: 20,
+    color: colors.light.textSecondary,
   },
 
   chatItem: {

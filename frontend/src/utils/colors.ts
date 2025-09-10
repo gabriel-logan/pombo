@@ -25,10 +25,16 @@ const LightColors = {
   statusError: "#F44336", // Vermelho (erros)
   statusSuccess: "#4CAF50", // Verde sucesso (enviado, lido)
 
+  link: "#0366d6", // Links
+
   // 🛠 Outros
   btnGithubBackground: "#24292e",
   btnGithubBackgroundPressed: "#1b1f23",
   btnGithubText: "#FFFFFF",
+
+  btnLogoutBackground: "#ff4757",
+  btnLogoutBackgroundPressed: "#e84148",
+  btnLogoutText: "#FFFFFF",
 };
 
 const colors = {

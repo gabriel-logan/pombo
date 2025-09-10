@@ -1,4 +1,6 @@
 import { Logger, UseGuards } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { JwtService } from "@nestjs/jwt";
 import {
   ConnectedSocket,
   MessageBody,
@@ -12,6 +14,8 @@ import {
 import { Server, Socket } from "socket.io";
 import { WSAuthGuard } from "src/auth/guards/ws-auth.guard";
 import { Public } from "src/common/decorators/routes/public.decorator";
+import { JwtPayload } from "src/common/types";
+import { EnvSecretConfig } from "src/configs/types";
 
 @UseGuards(WSAuthGuard)
 @WebSocketGateway({
@@ -21,6 +25,32 @@ import { Public } from "src/common/decorators/routes/public.decorator";
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(ChatGateway.name);
+
+  private readonly usersOnline: Map<number, string> = new Map();
+
+  constructor(
+    private readonly configService: ConfigService<EnvSecretConfig, true>,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  private async extractUserFromHandshakeToken(
+    client: Socket,
+  ): Promise<JwtPayload | null> {
+    const token = client.handshake.auth.token as string | undefined;
+
+    if (!token) {
+      return null;
+    }
+
+    const { secret } =
+      this.configService.get<EnvSecretConfig["jwtToken"]>("jwtToken");
+
+    const payload: JwtPayload = await this.jwtService.verifyAsync(token, {
+      secret,
+    });
+
+    return payload;
+  }
 
   private validateClientRoom(clientId: string, room: string): boolean {
     const ids = room.split("_");
@@ -38,12 +68,43 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
 
-  handleConnection(client: Socket): void {
-    this.logger.log(`Client connected: ${client.id}`);
+  async handleConnection(client: Socket): Promise<void> {
+    const user = await this.extractUserFromHandshakeToken(client);
+
+    this.logger.log(
+      `Client connected: ${client.id}, User: ${JSON.stringify(user)}`,
+    );
+
+    if (user) {
+      const userId = parseInt(user.sub, 10);
+
+      this.usersOnline.set(userId, client.id);
+
+      this.server.emit("user-online", { userId });
+    }
   }
 
-  handleDisconnect(client: Socket): void {
-    this.logger.log(`Client disconnected: ${client.id}`);
+  async handleDisconnect(client: Socket): Promise<void> {
+    const user = await this.extractUserFromHandshakeToken(client);
+
+    this.logger.log(
+      `Client disconnected: ${client.id}, User: ${JSON.stringify(user)}`,
+    );
+
+    if (user) {
+      const userId = parseInt(user.sub, 10);
+
+      this.usersOnline.delete(userId);
+
+      this.server.emit("user-offline", { userId });
+    }
+  }
+
+  @SubscribeMessage("check-online-status")
+  handleCheckOnlineStatus(@MessageBody() otherId: number): { online: boolean } {
+    const isOnline = this.usersOnline.has(otherId);
+
+    return { online: isOnline };
   }
 
   @Public()

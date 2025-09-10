@@ -39,7 +39,7 @@ export default function ChatPage() {
   const [textInput, setTextInput] = useState("");
 
   const [typing, setTyping] = useState(false);
-  const [status] = useState<"online" | "offline">("offline");
+  const [status, setStatus] = useState<"online" | "offline">("offline");
 
   function sendMessage(text: string) {
     if (text.trim() === "") return;
@@ -134,6 +134,31 @@ export default function ChatPage() {
     return () => {
       socket?.off("user-typing");
       socket?.off("user-stop-typing");
+    };
+  }, [otherId]);
+
+  useEffect(() => {
+    const socket = getSocket();
+
+    socket?.emit("check-online-status", otherId, (res: { online: boolean }) => {
+      setStatus(res.online ? "online" : "offline");
+    });
+
+    socket?.on("user-online", ({ userId }) => {
+      if (userId === otherId) {
+        setStatus("online");
+      }
+    });
+
+    socket?.on("user-offline", ({ userId }) => {
+      if (userId === otherId) {
+        setStatus("offline");
+      }
+    });
+
+    return () => {
+      socket?.off("user-online");
+      socket?.off("user-offline");
     };
   }, [otherId]);
 

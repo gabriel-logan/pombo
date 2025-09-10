@@ -22,8 +22,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly server: Server;
 
   handleConnection(client: Socket): void {
-    console.log("a:::::", client.handshake.auth.token);
-
     this.logger.log(`Client connected: ${client.id}`);
   }
 

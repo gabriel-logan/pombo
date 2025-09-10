@@ -83,7 +83,6 @@ export default function ChatPage() {
         setMessages((prev) => [...prev, newMsg]);
       }
 
-      // ✅ salva mensagem no banco
       try {
         await saveMessage(roomId, data.message, newMsg.sender);
       } catch (err) {

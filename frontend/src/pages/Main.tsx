@@ -9,10 +9,10 @@ import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
 
 import { useAuthStore } from "../stores/authStore";
-import { ChatNativeStackScreenProps } from "../types/Navigation";
+import { RootDrawerScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
 
-type MainPageProps = ChatNativeStackScreenProps<"MainPage">;
+type MainPageProps = RootDrawerScreenProps<"MainPage">;
 
 export default function MainPage() {
   const { user } = useAuthStore((state) => state);

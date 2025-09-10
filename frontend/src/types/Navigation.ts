@@ -9,6 +9,12 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 export type RootNativeStackParamList = {
   AuthPage: undefined;
   RootDrawerNavigator: NavigatorScreenParams<RootDrawerParamList> | undefined;
+  ChatPage: {
+    myId: number;
+    otherId: number;
+    otherAvatarUrl: string;
+    otherUsername: string;
+  };
 };
 
 export type RootNativeStackScreenProps<
@@ -18,9 +24,7 @@ export type RootNativeStackScreenProps<
 // Root Drawer Navigator
 export type RootDrawerParamList = {
   ProfilePage: undefined;
-  ChatNativeStackNavigator:
-    | NavigatorScreenParams<ChatNativeStackParamList>
-    | undefined;
+  MainPage: undefined;
   SettingsPage: undefined;
 };
 
@@ -30,28 +34,8 @@ export type RootDrawerScreenProps<T extends keyof RootDrawerParamList> =
     RootNativeStackScreenProps<keyof RootNativeStackParamList>
   >;
 
-// Chat Stack Navigator
-export type ChatNativeStackParamList = {
-  MainPage: undefined;
-  ChatPage: {
-    myId: number;
-    otherId: number;
-    otherAvatarUrl: string;
-    otherUsername: string;
-  };
-};
-
-export type ChatNativeStackScreenProps<
-  T extends keyof ChatNativeStackParamList,
-> = CompositeScreenProps<
-  NativeStackScreenProps<ChatNativeStackParamList, T>,
-  RootDrawerScreenProps<keyof RootDrawerParamList>
->;
-
 // Global Param List
-export type GlobalParamList = RootDrawerParamList &
-  ChatNativeStackParamList &
-  RootNativeStackParamList;
+export type GlobalParamList = RootDrawerParamList & RootNativeStackParamList;
 
 // Extend ReactNavigation namespace to include GlobalParamList
 declare global {

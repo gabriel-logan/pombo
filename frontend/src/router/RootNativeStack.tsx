@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import AuthPage from "../pages/Auth";
+import ChatPage from "../pages/Chat";
 import { RootNativeStackParamList } from "../types/Navigation";
 import RootDrawerNavigator from "./RootDrawer";
 
@@ -18,6 +19,11 @@ export default function RootNativeStackNavigator() {
         name="RootDrawerNavigator"
         component={RootDrawerNavigator}
         options={{ title: "Main" }}
+      />
+      <Stack.Screen
+        name="ChatPage"
+        component={ChatPage}
+        options={{ title: "Chat" }}
       />
     </Stack.Navigator>
   );

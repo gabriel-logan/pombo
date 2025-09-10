@@ -1,23 +1,23 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
 
+import MainPage from "../pages/Main";
 import ProfilePage from "../pages/Profile";
 import SettingsPage from "../pages/Settings";
 import type { RootDrawerParamList } from "../types/Navigation";
-import ChatNativeStackNavigator from "./ChatNativeStack";
 
 const Drawer = createDrawerNavigator<RootDrawerParamList>();
 
 export default function RootDrawerNavigator() {
   return (
-    <Drawer.Navigator initialRouteName="ChatNativeStackNavigator">
+    <Drawer.Navigator initialRouteName="MainPage">
       <Drawer.Screen
         name="ProfilePage"
         component={ProfilePage}
         options={{ title: "Profile" }}
       />
       <Drawer.Screen
-        name="ChatNativeStackNavigator"
-        component={ChatNativeStackNavigator}
+        name="MainPage"
+        component={MainPage}
         options={{ title: "Main" }}
       />
       <Drawer.Screen

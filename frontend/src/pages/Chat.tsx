@@ -14,10 +14,10 @@ import { useRoute } from "@react-navigation/native";
 import BtnGoBack from "../components/BtnGoBack";
 import { initDB, loadMessages, saveMessage } from "../lib/chatDB";
 import { getSocket } from "../lib/socketInstance";
-import { ChatNativeStackScreenProps } from "../types/Navigation";
+import { RootNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
 
-type ChatPageProps = ChatNativeStackScreenProps<"ChatPage">;
+type ChatPageProps = RootNativeStackScreenProps<"ChatPage">;
 
 function getRoomId(userId1: number, userId2: number) {
   return [userId1, userId2].sort((a, b) => a - b).join("_");
@@ -37,7 +37,7 @@ export default function ChatPage() {
   const [textInput, setTextInput] = useState("");
 
   const [typing, setTyping] = useState(false);
-  const [status, setStatus] = useState<"online" | "offline">("offline");
+  const [status] = useState<"online" | "offline">("offline");
 
   function sendMessage(text: string) {
     if (text.trim() === "") return;

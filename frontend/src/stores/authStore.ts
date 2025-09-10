@@ -9,7 +9,11 @@ interface AuthState {
 
   signIn: (user: AuthUser) => Promise<void>;
   signOut: () => Promise<void>;
+
+  restoreSession: () => Promise<void>;
 }
+
+const storageKey = "@pombo";
 
 export const useAuthStore: AuthState = {
   token: null,
@@ -20,13 +24,32 @@ export const useAuthStore: AuthState = {
     useAuthStore.token = user.accessToken;
     useAuthStore.isLoggedIn = true;
     useAuthStore.user = user;
-    await AsyncStorage.setItem("@pombo:token", user.accessToken);
+    await AsyncStorage.setItem(storageKey, JSON.stringify(user));
   },
 
   signOut: async () => {
     useAuthStore.token = null;
     useAuthStore.isLoggedIn = false;
     useAuthStore.user = null;
-    await AsyncStorage.removeItem("@pombo:token");
+    await AsyncStorage.removeItem(storageKey);
+  },
+
+  restoreSession: async () => {
+    const userData = await AsyncStorage.getItem(storageKey);
+
+    if (userData) {
+      let user: AuthUser;
+
+      try {
+        user = JSON.parse(userData);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        return console.error("Failed to parse user data:", error);
+      }
+
+      useAuthStore.token = user.accessToken;
+      useAuthStore.isLoggedIn = true;
+      useAuthStore.user = user;
+    }
   },
 };

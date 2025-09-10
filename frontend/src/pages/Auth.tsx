@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import * as Linking from "expo-linking";
 import { FontAwesome6 } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { v4 as uuidv4 } from "uuid";
 
@@ -72,45 +71,45 @@ export default function AuthPage() {
   }, []);
 
   useEffect(() => {
-    async function getUser(code?: string) {
-      try {
-        const response = await apiInstance.post<AuthUser>(
-          "/auth/github/sign-in",
-          {
-            code,
-          },
-        );
+    if (params?.code) {
+      async function getUser() {
+        try {
+          const response = await apiInstance.post<AuthUser>(
+            "/auth/github/sign-in",
+            {
+              code: params?.code,
+            },
+          );
 
-        console.log(response.data);
+          console.log(response.data);
 
-        // Save the token in local storage
-        await AsyncStorage.setItem("@pombo", JSON.stringify(response.data));
+          // Save the token in local storage
+          await temporaryUserStore.setAuthUser(response.data);
 
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "RootDrawerNavigator" }],
-        });
-      } catch {
-        await AsyncStorage.removeItem("@pombo");
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "RootDrawerNavigator" }],
+          });
+        } catch {
+          await temporaryUserStore.removeAuthUser();
 
-        consumedRef.current = false;
-      } finally {
-        // Clean up the URL parameters
-        setParams(null);
+          consumedRef.current = false;
+        } finally {
+          // Clean up the URL parameters
+          setParams(null);
 
-        // Clean the URL in web environment
-        if (
-          Platform.OS === "web" &&
-          typeof window !== "undefined" &&
-          window.history?.replaceState
-        ) {
-          const clean = window.location.origin + window.location.pathname;
-          window.history.replaceState({}, document.title, clean);
+          // Clean the URL in web environment
+          if (
+            Platform.OS === "web" &&
+            typeof window !== "undefined" &&
+            window.history?.replaceState
+          ) {
+            const clean = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, clean);
+          }
         }
       }
-    }
 
-    if (params?.code) {
       getUser();
     }
   }, [navigation, params]);

@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 
 import BtnGoBack from "../components/BtnGoBack";
+import { initDB, loadMessages, saveMessage } from "../lib/chatDB";
 import { getSocket } from "../lib/socketInstance";
 import { ChatNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
@@ -49,22 +50,52 @@ export default function ChatPage() {
   }
 
   useEffect(() => {
+    let isMounted = true;
+
+    async function setup() {
+      try {
+        await initDB();
+
+        const saved = await loadMessages(roomId);
+
+        if (isMounted) {
+          setMessages(saved);
+        }
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error("Erro ao inicializar banco:", err);
+      }
+    }
+
+    setup();
+
     const socket = getSocket();
 
     socket?.emit("join-room", roomId);
 
-    socket?.on("new-message", (data) => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          text: data.message,
-          sender: data.senderId === myId ? "me" : "other",
-        },
-      ]);
+    socket?.on("new-message", async (data) => {
+      const newMsg = {
+        text: data.message,
+        sender: data.senderId === myId ? "me" : "other",
+      };
+
+      if (isMounted) {
+        setMessages((prev) => [...prev, newMsg]);
+      }
+
+      // ✅ salva mensagem no banco
+      try {
+        await saveMessage(roomId, data.message, newMsg.sender);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error("Erro ao salvar mensagem:", err);
+      }
     });
 
     return () => {
+      isMounted = false;
       socket?.emit("leave-room", roomId);
+      socket?.off("new-message");
     };
   }, [myId, roomId]);
 

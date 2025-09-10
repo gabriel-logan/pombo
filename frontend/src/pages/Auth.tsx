@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { FontAwesome6 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 import signInWithGitHub from "../actions/signInWithGitHub";
+import BtnSignInWithGithub from "../components/BtnSignInWithGithub";
 import Loading from "../components/Loading";
 import useOAuthHandler from "../hooks/useOAuthHandler";
 import { useAuthStore } from "../stores/authStore";
@@ -40,14 +40,7 @@ export default function AuthPage() {
       <Text style={styles.title}>Welcome</Text>
       <Text style={styles.subtitle}>Sign in to continue</Text>
       <View style={styles.buttonContainer}>
-        <FontAwesome6.Button
-          name="github"
-          backgroundColor={colors.light.btnGithubBackground}
-          onPress={signInWithGitHub}
-          style={styles.githubButton}
-        >
-          <Text style={styles.githubButtonText}>Sign in with GitHub</Text>
-        </FontAwesome6.Button>
+        <BtnSignInWithGithub onPress={signInWithGitHub} disabled={isLoading} />
       </View>
     </View>
   );
@@ -78,16 +71,5 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: "100%",
     alignItems: "center",
-  },
-
-  githubButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-  },
-
-  githubButtonText: {
-    color: colors.light.btnGithubText,
-    fontSize: 16,
-    fontWeight: "600",
   },
 });

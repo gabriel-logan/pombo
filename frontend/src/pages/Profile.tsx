@@ -1,18 +1,24 @@
+import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import * as Linking from "expo-linking";
 import { useNavigation } from "@react-navigation/native";
 
+import Loading from "../components/Loading";
 import { useAuthStore } from "../stores/authStore";
 import colors from "../utils/colors";
 
 export default function ProfilePage() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const { signOut, user } = useAuthStore((state) => state);
 
   const navigation = useNavigation();
 
   async function handleLogout() {
-    await signOut();
+    setIsLoading(true);
+
+    await signOut().finally(() => setIsLoading(false));
 
     navigation.reset({
       index: 0,
@@ -26,6 +32,10 @@ export default function ProfilePage() {
     }
   }
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
     <View style={styles.container}>
       <Image source={{ uri: user?.avatar_url }} style={styles.avatar} />
@@ -36,11 +46,16 @@ export default function ProfilePage() {
       <Text style={styles.followings}>
         Following: {user?.following.quantity}
       </Text>
-      <Text style={styles.github} onPress={openGithub}>
+      <Text style={styles.github} onPress={openGithub} accessibilityRole="link">
         {user?.url}
       </Text>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={handleLogout}
+        disabled={isLoading}
+        accessibilityRole="button"
+      >
         <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>
     </View>

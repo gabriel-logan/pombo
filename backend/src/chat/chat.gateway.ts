@@ -57,7 +57,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() room: string,
     @ConnectedSocket() client: Socket,
   ): Promise<void> {
-    const isValidClientRoom = this.validateClientRoom(client.user!.sub, room);
+    const { sub: authenticatedClientId } = client.user!;
+
+    const isValidClientRoom = this.validateClientRoom(
+      authenticatedClientId,
+      room,
+    );
 
     if (!isValidClientRoom) {
       throw new WsException("You are not allowed to join this room");
@@ -71,7 +76,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() room: string,
     @ConnectedSocket() client: Socket,
   ): Promise<void> {
-    const isValidClientRoom = this.validateClientRoom(client.user!.sub, room);
+    const { sub: authenticatedClientId } = client.user!;
+
+    const isValidClientRoom = this.validateClientRoom(
+      authenticatedClientId,
+      room,
+    );
 
     if (!isValidClientRoom) {
       throw new WsException("You are not allowed to leave this room");
@@ -87,9 +97,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ): void {
     const { room, message } = data;
 
-    const senderId = client.user!.sub;
+    const { sub: authenticatedClientId } = client.user!;
 
-    const isValidClientRoom = this.validateClientRoom(senderId, room);
+    const isValidClientRoom = this.validateClientRoom(
+      authenticatedClientId,
+      room,
+    );
 
     if (!isValidClientRoom) {
       throw new WsException(
@@ -99,7 +112,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.server.to(room).emit("new-message", {
       message,
-      senderId: parseInt(senderId, 10),
+      senderId: parseInt(authenticatedClientId, 10),
     });
   }
 
@@ -110,16 +123,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ): void {
     const { room } = data;
 
-    const senderId = client.user!.sub;
+    const { sub: authenticatedClientId } = client.user!;
 
-    const isValidClientRoom = this.validateClientRoom(senderId, room);
+    const isValidClientRoom = this.validateClientRoom(
+      authenticatedClientId,
+      room,
+    );
 
     if (!isValidClientRoom) {
       throw new WsException("You are not allowed to type in this room");
     }
 
     this.server.to(room).emit("user-typing", {
-      senderId: parseInt(senderId, 10),
+      senderId: parseInt(authenticatedClientId, 10),
     });
   }
 
@@ -130,16 +146,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ): void {
     const { room } = data;
 
-    const senderId = client.user!.sub;
+    const { sub: authenticatedClientId } = client.user!;
 
-    const isValidClientRoom = this.validateClientRoom(senderId, room);
+    const isValidClientRoom = this.validateClientRoom(
+      authenticatedClientId,
+      room,
+    );
 
     if (!isValidClientRoom) {
       throw new WsException("You are not allowed to stop typing in this room");
     }
 
     this.server.to(room).emit("user-stop-typing", {
-      senderId: parseInt(senderId, 10),
+      senderId: parseInt(authenticatedClientId, 10),
     });
   }
 }

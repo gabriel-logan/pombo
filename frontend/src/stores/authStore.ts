@@ -46,6 +46,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   restoreSession: async () => {
     const storedUser = await AsyncStorage.getItem(authStoreKey);
 
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate loading time
+
     if (storedUser) {
       try {
         const user: AuthUser = JSON.parse(storedUser);

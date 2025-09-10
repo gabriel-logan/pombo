@@ -1,14 +1,12 @@
-import { useEffect, useRef, useState } from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
-import * as Linking from "expo-linking";
+import { useEffect, useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 import signInWithGitHub from "../actions/signInWithGitHub";
 import Loading from "../components/Loading";
-import apiInstance from "../lib/apiInstance";
+import useOAuthHandler from "../hooks/useOAuthHandler";
 import { useAuthStore } from "../stores/authStore";
-import type { AuthUser } from "../types/Auth";
 import { RootNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
 
@@ -17,13 +15,12 @@ type AuthPageProps = RootNativeStackScreenProps<"AuthPage">;
 export default function AuthPage() {
   const { isLoggedIn, signIn, signOut } = useAuthStore((state) => state);
 
+  const navigation = useNavigation<AuthPageProps["navigation"]>();
+
   const [isLoading, setIsLoading] = useState(true);
 
-  const [params, setParams] = useState<Linking.QueryParams | null>(null);
-
-  const consumedRef = useRef(false); // To prevent multiple consumptions of the same (QUERY) code
-
-  const navigation = useNavigation<AuthPageProps["navigation"]>();
+  // Handle OAuth Sign-In flow
+  useOAuthHandler(signIn, signOut, setIsLoading);
 
   // If already logged in, redirect to the main app
   useEffect(() => {
@@ -33,80 +30,6 @@ export default function AuthPage() {
       setIsLoading(false);
     }
   }, [isLoggedIn, navigation]);
-
-  // Handle the OAuth redirect URL and extract the code
-  useEffect(() => {
-    function handleUrlString(url?: string | null) {
-      if (!url) return;
-
-      const parsed = Linking.parse(url);
-
-      const code = parsed.queryParams?.code;
-
-      if (code && !consumedRef.current) {
-        consumedRef.current = true;
-
-        setParams(parsed.queryParams);
-      }
-    }
-
-    Linking.getInitialURL().then(handleUrlString);
-
-    const subscription = Linking.addEventListener("url", ({ url }) => {
-      handleUrlString(url);
-    });
-
-    return () => subscription.remove();
-  }, []);
-
-  // When we have a code, exchange it for a token and sign in
-  useEffect(() => {
-    if (params?.code) {
-      setIsLoading(true);
-
-      async function getUser() {
-        try {
-          const response = await apiInstance.post<AuthUser>(
-            "/auth/github/sign-in",
-            {
-              code: params?.code,
-            },
-          );
-
-          console.log(response.data);
-
-          // Save the token in local storage
-          await signIn(response.data);
-
-          navigation.reset({
-            index: 0,
-            routes: [{ name: "RootDrawerNavigator" }],
-          });
-        } catch {
-          await signOut();
-
-          consumedRef.current = false;
-        } finally {
-          // Clean up the URL parameters
-          setParams(null);
-
-          // Clean the URL in web environment
-          if (
-            Platform.OS === "web" &&
-            typeof window !== "undefined" &&
-            window.history?.replaceState
-          ) {
-            const clean = window.location.origin + window.location.pathname;
-            window.history.replaceState({}, document.title, clean);
-          }
-
-          setIsLoading(false);
-        }
-      }
-
-      getUser();
-    }
-  }, [navigation, params?.code, signIn, signOut]);
 
   if (isLoading) {
     return <Loading />;

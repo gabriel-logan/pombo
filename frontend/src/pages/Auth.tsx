@@ -17,6 +17,14 @@ type AuthPageProps = RootNativeStackScreenProps<"AuthPage">;
 
 const { githubOauthEndpoint, githubClientId, githubRedirectUri } = githubPublic;
 
+async function signInWithGitHub() {
+  const randomState = uuidv4();
+
+  const authUrl = `${githubOauthEndpoint}?client_id=${githubClientId}&redirect_uri=${githubRedirectUri}&state=${randomState}`;
+
+  await Linking.openURL(authUrl);
+}
+
 export default function AuthPage() {
   const { isLoggedIn, signIn, signOut } = useAuthStore;
 
@@ -28,14 +36,7 @@ export default function AuthPage() {
 
   const navigation = useNavigation<AuthPageProps["navigation"]>();
 
-  async function signInWithGitHub() {
-    const randomState = uuidv4();
-
-    const authUrl = `${githubOauthEndpoint}?client_id=${githubClientId}&redirect_uri=${githubRedirectUri}&state=${randomState}`;
-
-    await Linking.openURL(authUrl);
-  }
-
+  // If already logged in, redirect to the main app
   useEffect(() => {
     if (isLoggedIn) {
       navigation.reset({ index: 0, routes: [{ name: "RootDrawerNavigator" }] });
@@ -44,6 +45,7 @@ export default function AuthPage() {
     }
   }, [isLoggedIn, navigation]);
 
+  // Handle the OAuth redirect URL and extract the code
   useEffect(() => {
     function handleUrlString(url?: string | null) {
       if (!url) return;
@@ -68,6 +70,7 @@ export default function AuthPage() {
     return () => subscription.remove();
   }, []);
 
+  // When we have a code, exchange it for a token and sign in
   useEffect(() => {
     if (params?.code) {
       setIsLoading(true);

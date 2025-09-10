@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
@@ -10,7 +9,6 @@ import {
 import { useNavigation } from "@react-navigation/native";
 
 import { useAuthStore } from "../stores/authStore";
-import { AuthUser } from "../types/Auth";
 import { ChatNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
 
@@ -21,24 +19,10 @@ export default function MainPage() {
 
   const navigation = useNavigation<MainPageProps["navigation"]>();
 
-  const [followings, setFollowings] = useState<AuthUser["following"]["info"]>(
-    [],
-  );
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (user) {
-        setFollowings(user.following.info);
-      }
-    };
-
-    fetchUserData();
-  }, [user]);
-
   return (
     <View style={styles.container}>
       <FlatList
-        data={followings}
+        data={user?.following.info}
         keyExtractor={(item) => item.id.toString()}
         ListEmptyComponent={
           <Text style={styles.emptyText}>No followings found</Text>

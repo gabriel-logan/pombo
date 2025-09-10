@@ -38,8 +38,6 @@ export default function AuthPage() {
 
   useEffect(() => {
     async function checkAuth() {
-      setIsLoading(true);
-
       try {
         if (isLoggedIn) {
           navigation.reset({

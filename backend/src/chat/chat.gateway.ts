@@ -1,4 +1,4 @@
-import { Logger } from "@nestjs/common";
+import { Logger, UseGuards } from "@nestjs/common";
 import {
   ConnectedSocket,
   MessageBody,
@@ -9,7 +9,10 @@ import {
   WebSocketServer,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
+import { WSAuthGuard } from "src/auth/guards/ws-auth.guard";
+import { Public } from "src/common/decorators/routes/public.decorator";
 
+@UseGuards(WSAuthGuard)
 @WebSocketGateway({
   cors: {
     origin: "*",
@@ -29,6 +32,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 
+  @Public()
   @SubscribeMessage("check-alive")
   handleAlive(): { status: boolean } {
     return { status: true };

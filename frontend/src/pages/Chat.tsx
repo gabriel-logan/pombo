@@ -146,7 +146,7 @@ export default function ChatPage() {
           <Image source={{ uri: otherAvatarUrl }} style={styles.avatar} />
           <View>
             <Text style={styles.username}>{otherUsername}</Text>
-            <Text>Status: {status}</Text>
+            <Text style={styles.status}>Status: {status}</Text>
           </View>
         </View>
 
@@ -159,7 +159,7 @@ export default function ChatPage() {
             ] as (keyof typeof Ionicons.glyphMap)[]
           ).map((icon) => (
             <TouchableOpacity key={icon}>
-              <Ionicons name={icon} size={24} color="#4A90E2" />
+              <Ionicons name={icon} size={22} color="#4A90E2" />
             </TouchableOpacity>
           ))}
         </View>
@@ -204,7 +204,6 @@ export default function ChatPage() {
           [
             "happy-outline",
             "attach-outline",
-            "image-outline",
           ] as (keyof typeof Ionicons.glyphMap)[]
         ).map((icon) => (
           <TouchableOpacity key={icon}>
@@ -265,14 +264,19 @@ const styles = StyleSheet.create({
   },
 
   username: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
     color: colors.light.textMain,
   },
 
+  status: {
+    fontSize: 12,
+    color: colors.light.textSecondary,
+  },
+
   iconsRight: {
     flexDirection: "row",
-    gap: 20,
+    gap: 12,
   },
 
   chatArea: {
@@ -336,7 +340,7 @@ const styles = StyleSheet.create({
   },
 
   icon: {
-    marginHorizontal: 6,
+    marginHorizontal: 2,
   },
 
   input: {
@@ -345,7 +349,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 14,
     backgroundColor: colors.light.backgroundInput,
-    marginHorizontal: 8,
+    marginHorizontal: 4,
     fontSize: 15,
     color: colors.light.textMain,
   },

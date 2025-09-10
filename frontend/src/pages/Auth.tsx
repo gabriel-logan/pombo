@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import Loading from "../components/Loading";
 import apiInstance from "../lib/apiInstance";
-import { temporaryUserStore } from "../stores/temporaryUserStore";
+import { useAuthStore } from "../stores/authStore";
 import type { AuthUser } from "../types/Auth";
 import { RootNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
@@ -21,6 +21,8 @@ export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const [params, setParams] = useState<Linking.QueryParams | null>(null);
+
+  const { isLoggedIn, signIn, signOut } = useAuthStore;
 
   const consumedRef = useRef(false); // To prevent multiple consumptions of the same code
 
@@ -53,9 +55,7 @@ export default function AuthPage() {
       setIsLoading(true);
 
       try {
-        const userData = await temporaryUserStore.getAuthUser();
-
-        if (userData) {
+        if (isLoggedIn) {
           navigation.reset({
             index: 0,
             routes: [{ name: "RootDrawerNavigator" }],
@@ -67,7 +67,7 @@ export default function AuthPage() {
     }
 
     checkAuth();
-  }, [navigation]);
+  }, [isLoggedIn, navigation]);
 
   useEffect(() => {
     Linking.getInitialURL().then(handleUrlString);
@@ -95,14 +95,14 @@ export default function AuthPage() {
           console.log(response.data);
 
           // Save the token in local storage
-          await temporaryUserStore.setAuthUser(response.data);
+          await signIn(response.data);
 
           navigation.reset({
             index: 0,
             routes: [{ name: "RootDrawerNavigator" }],
           });
         } catch {
-          await temporaryUserStore.removeAuthUser();
+          await signOut();
 
           consumedRef.current = false;
         } finally {
@@ -125,7 +125,7 @@ export default function AuthPage() {
 
       getUser();
     }
-  }, [navigation, params]);
+  }, [navigation, params?.code, signIn, signOut]);
 
   if (isLoading) {
     return <Loading />;

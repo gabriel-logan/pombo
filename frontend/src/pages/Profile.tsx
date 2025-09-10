@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Image,
   Linking,
@@ -9,39 +8,28 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-import { temporaryUserStore } from "../stores/temporaryUserStore";
-import { AuthUser } from "../types/Auth";
+import { useAuthStore } from "../stores/authStore";
 import colors from "../utils/colors";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<AuthUser | null>(null);
-
   const navigation = useNavigation();
 
-  const handleLogout = async () => {
-    await temporaryUserStore.removeAuthUser();
+  const { signOut, user } = useAuthStore;
+
+  async function handleLogout() {
+    await signOut();
 
     navigation.reset({
       index: 0,
       routes: [{ name: "AuthPage" }],
     });
-  };
+  }
 
-  const openGithub = () => {
+  function openGithub() {
     if (user?.url) {
       Linking.openURL(user.url);
     }
-  };
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const userData = await temporaryUserStore.getAuthUser();
-
-      setUser(userData);
-    };
-
-    fetchUserData();
-  }, []);
+  }
 
   return (
     <View style={styles.container}>

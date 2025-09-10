@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-import { temporaryUserStore } from "../stores/temporaryUserStore";
+import { useAuthStore } from "../stores/authStore";
 import { AuthUser } from "../types/Auth";
 import { ChatNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
@@ -19,21 +19,21 @@ type MainPageProps = ChatNativeStackScreenProps<"MainPage">;
 export default function MainPage() {
   const navigation = useNavigation<MainPageProps["navigation"]>();
 
+  const { user } = useAuthStore;
+
   const [followings, setFollowings] = useState<AuthUser["following"]["info"]>(
     [],
   );
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const user = await temporaryUserStore.getAuthUser();
-
       if (user) {
         setFollowings(user.following.info);
       }
     };
 
     fetchUserData();
-  }, []);
+  }, [user]);
 
   return (
     <View style={styles.container}>

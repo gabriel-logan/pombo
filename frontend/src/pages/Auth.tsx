@@ -3,27 +3,16 @@ import { Platform, StyleSheet, Text, View } from "react-native";
 import * as Linking from "expo-linking";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { v4 as uuidv4 } from "uuid";
 
+import signInWithGitHub from "../actions/signInWithGitHub";
 import Loading from "../components/Loading";
 import apiInstance from "../lib/apiInstance";
 import { useAuthStore } from "../stores/authStore";
 import type { AuthUser } from "../types/Auth";
 import { RootNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
-import { githubPublic } from "../utils/env/github";
 
 type AuthPageProps = RootNativeStackScreenProps<"AuthPage">;
-
-const { githubOauthEndpoint, githubClientId, githubRedirectUri } = githubPublic;
-
-async function signInWithGitHub() {
-  const randomState = uuidv4();
-
-  const authUrl = `${githubOauthEndpoint}?client_id=${githubClientId}&redirect_uri=${githubRedirectUri}&state=${randomState}`;
-
-  await Linking.openURL(authUrl);
-}
 
 export default function AuthPage() {
   const { isLoggedIn, signIn, signOut } = useAuthStore((state) => state);

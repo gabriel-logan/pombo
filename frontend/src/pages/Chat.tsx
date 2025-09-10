@@ -151,15 +151,17 @@ export default function ChatPage() {
         </View>
 
         <View style={styles.iconsRight}>
-          <TouchableOpacity>
-            <Ionicons name="call-outline" size={24} color="#4A90E2" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="videocam-outline" size={24} color="#4A90E2" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="desktop-outline" size={24} color="#4A90E2" />
-          </TouchableOpacity>
+          {(
+            [
+              "call-outline",
+              "videocam-outline",
+              "desktop-outline",
+            ] as (keyof typeof Ionicons.glyphMap)[]
+          ).map((icon) => (
+            <TouchableOpacity key={icon}>
+              <Ionicons name={icon} size={24} color="#4A90E2" />
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
 
@@ -198,39 +200,17 @@ export default function ChatPage() {
 
       {/* INPUT AREA */}
       <View style={styles.inputBar}>
-        <TouchableOpacity>
-          <Ionicons
-            name="happy-outline"
-            size={24}
-            color="#666"
-            style={styles.icon}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity>
-          <Ionicons
-            name="attach-outline"
-            size={22}
-            color="#666"
-            style={styles.icon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons
-            name="image-outline"
-            size={22}
-            color="#666"
-            style={styles.icon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons
-            name="videocam-outline"
-            size={22}
-            color="#666"
-            style={styles.icon}
-          />
-        </TouchableOpacity>
+        {(
+          [
+            "happy-outline",
+            "attach-outline",
+            "image-outline",
+          ] as (keyof typeof Ionicons.glyphMap)[]
+        ).map((icon) => (
+          <TouchableOpacity key={icon}>
+            <Ionicons name={icon} size={22} color="#666" style={styles.icon} />
+          </TouchableOpacity>
+        ))}
 
         <TextInput
           style={styles.input}
@@ -239,12 +219,15 @@ export default function ChatPage() {
           value={textInput}
           onChangeText={setTextInput}
         />
-        <TouchableOpacity
-          style={styles.sendButton}
-          onPress={() => sendMessage(textInput)}
-        >
-          <Ionicons name="send" size={20} color="#fff" />
-        </TouchableOpacity>
+
+        {textInput.trim() !== "" && (
+          <TouchableOpacity
+            style={styles.sendButton}
+            onPress={() => sendMessage(textInput)}
+          >
+            <Ionicons name="send" size={20} color="#fff" />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

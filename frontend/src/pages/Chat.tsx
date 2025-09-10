@@ -36,6 +36,9 @@ export default function ChatPage() {
 
   const [textInput, setTextInput] = useState("");
 
+  const [typing, setTyping] = useState(false);
+  const [status, setStatus] = useState<"online" | "offline">("offline");
+
   function sendMessage(text: string) {
     if (text.trim() === "") return;
 
@@ -72,8 +75,6 @@ export default function ChatPage() {
 
     const socket = getSocket();
 
-    socket?.emit("join-room", roomId);
-
     socket?.on("new-message", async (data) => {
       const newMsg = {
         text: data.message,
@@ -99,6 +100,40 @@ export default function ChatPage() {
     };
   }, [myId, roomId]);
 
+  useEffect(() => {
+    const socket = getSocket();
+    let typingTimeout: NodeJS.Timeout;
+
+    if (textInput.length > 0) {
+      socket?.emit("typing", { room: roomId, senderId: myId });
+
+      typingTimeout = setTimeout(() => {
+        socket?.emit("stop-typing", { room: roomId, senderId: myId });
+      }, 1000); // 1s depois de parar de digitar
+    } else {
+      socket?.emit("stop-typing", { room: roomId, senderId: myId });
+    }
+
+    return () => clearTimeout(typingTimeout);
+  }, [myId, roomId, textInput.length]);
+
+  useEffect(() => {
+    const socket = getSocket();
+
+    socket?.on("user-typing", ({ senderId }) => {
+      if (senderId === otherId) setTyping(true);
+    });
+
+    socket?.on("user-stop-typing", ({ senderId }) => {
+      if (senderId === otherId) setTyping(false);
+    });
+
+    return () => {
+      socket?.off("user-typing");
+      socket?.off("user-stop-typing");
+    };
+  }, [otherId]);
+
   return (
     <View style={styles.container}>
       {/* HEADER */}
@@ -109,7 +144,7 @@ export default function ChatPage() {
           <Image source={{ uri: otherAvatarUrl }} style={styles.avatar} />
           <View>
             <Text style={styles.username}>{otherUsername}</Text>
-            <Text>Status: Online</Text>
+            <Text>Status: {status}</Text>
           </View>
         </View>
 
@@ -153,9 +188,11 @@ export default function ChatPage() {
       />
 
       {/* Typing */}
-      <View style={styles.typingContainer}>
-        <Text style={styles.typingText}>{otherUsername} is typing...</Text>
-      </View>
+      {typing && (
+        <View style={styles.typingContainer}>
+          <Text style={styles.typingText}>{otherUsername} is typing...</Text>
+        </View>
+      )}
 
       {/* INPUT AREA */}
       <View style={styles.inputBar}>

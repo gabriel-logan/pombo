@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 
 import BtnGoBack from "../components/BtnGoBack";
+import Loading from "../components/Loading";
 import { initDB, loadMessages, saveMessage } from "../lib/chatDB";
 import { getSocket } from "../lib/socketInstance";
 import { RootNativeStackScreenProps } from "../types/Navigation";
@@ -27,6 +28,8 @@ function getRoomId(userId1: number, userId2: number) {
 
 export default function ChatPage() {
   const { params } = useRoute<ChatPageProps["route"]>();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const { myId, otherId, otherAvatarUrl, otherUsername } = params;
 
@@ -58,6 +61,8 @@ export default function ChatPage() {
     let isMounted = true;
 
     async function setup() {
+      setIsLoading(true);
+
       try {
         await initDB();
 
@@ -69,6 +74,8 @@ export default function ChatPage() {
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error("Erro ao inicializar banco:", err);
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -161,6 +168,10 @@ export default function ChatPage() {
       socket?.off("user-offline");
     };
   }, [otherId]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <SafeAreaView

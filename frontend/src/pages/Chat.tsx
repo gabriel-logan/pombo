@@ -174,7 +174,9 @@ export default function ChatPage() {
           {/* CHAT MESSAGES */}
           <FlatList
             data={messages}
+            keyExtractor={(_, index) => index.toString()}
             style={styles.chatArea}
+            contentContainerStyle={{ paddingBottom: 20 }}
             ListEmptyComponent={
               <Text style={styles.noMessage}>No messages found.</Text>
             }

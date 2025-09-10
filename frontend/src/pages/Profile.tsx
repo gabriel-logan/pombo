@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import { temporaryUserStore } from "../stores/temporaryUserStore";
 import { AuthUser } from "../types/Auth";
@@ -14,8 +15,15 @@ import { AuthUser } from "../types/Auth";
 export default function ProfilePage() {
   const [user, setUser] = useState<AuthUser | null>(null);
 
+  const navigation = useNavigation();
+
   const handleLogout = async () => {
     await temporaryUserStore.removeAuthUser();
+
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "AuthPage" }],
+    });
   };
 
   const openGithub = () => {

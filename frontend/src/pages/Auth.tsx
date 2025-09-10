@@ -6,6 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { v4 as uuidv4 } from "uuid";
 
+import { temporaryUserStore } from "../stores/temporaryUserStore";
 import type { AuthUser } from "../types/Auth";
 import { RootNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
@@ -43,6 +44,21 @@ export default function AuthPage() {
       setParams(parsed.queryParams);
     }
   }
+
+  useEffect(() => {
+    async function checkAuth() {
+      const userData = await temporaryUserStore.getAuthUser();
+
+      if (userData) {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "RootDrawerNavigator" }],
+        });
+      }
+    }
+
+    checkAuth();
+  }, [navigation]);
 
   useEffect(() => {
     Linking.getInitialURL().then(handleUrlString);

@@ -81,6 +81,8 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (params?.code) {
+      setIsLoading(true);
+
       async function getUser() {
         try {
           const response = await apiInstance.post<AuthUser>(
@@ -116,6 +118,8 @@ export default function AuthPage() {
             const clean = window.location.origin + window.location.pathname;
             window.history.replaceState({}, document.title, clean);
           }
+
+          setIsLoading(false);
         }
       }
 

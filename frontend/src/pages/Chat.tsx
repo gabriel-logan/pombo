@@ -49,7 +49,6 @@ export default function ChatPage() {
     socket?.emit("send-message", {
       room: roomId,
       message: text,
-      senderId: myId,
     });
 
     setTextInput("");
@@ -109,13 +108,13 @@ export default function ChatPage() {
     let typingTimeout: NodeJS.Timeout;
 
     if (textInput.length > 0) {
-      socket?.emit("typing", { room: roomId, senderId: myId });
+      socket?.emit("typing", { room: roomId });
 
       typingTimeout = setTimeout(() => {
-        socket?.emit("stop-typing", { room: roomId, senderId: myId });
+        socket?.emit("stop-typing", { room: roomId });
       }, 1000); // 1s depois de parar de digitar
     } else {
-      socket?.emit("stop-typing", { room: roomId, senderId: myId });
+      socket?.emit("stop-typing", { room: roomId });
     }
 
     return () => clearTimeout(typingTimeout);

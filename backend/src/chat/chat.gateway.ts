@@ -7,6 +7,7 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { WSAuthGuard } from "src/auth/guards/ws-auth.guard";
@@ -20,6 +21,22 @@ import { Public } from "src/common/decorators/routes/public.decorator";
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(ChatGateway.name);
+
+  private validateClientRoom(
+    clientId: string | undefined,
+    room: string,
+  ): boolean {
+    const ids = room.split("_");
+
+    if (ids.length !== 2) {
+      throw new WsException("Invalid room format");
+    }
+
+    const id1 = ids[0];
+    const id2 = ids[1];
+
+    return id1 === clientId || id2 === clientId;
+  }
 
   @WebSocketServer()
   private readonly server: Server;
@@ -43,6 +60,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() room: string,
     @ConnectedSocket() client: Socket,
   ): Promise<void> {
+    const isValidClientRoom = this.validateClientRoom(client.user?.sub, room);
+
+    if (!isValidClientRoom) {
+      throw new WsException("You are not allowed to join this room");
+    }
+
     await client.join(room);
   }
 
@@ -51,14 +74,29 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() room: string,
     @ConnectedSocket() client: Socket,
   ): Promise<void> {
+    const isValidClientRoom = this.validateClientRoom(client.user?.sub, room);
+
+    if (!isValidClientRoom) {
+      throw new WsException("You are not allowed to leave this room");
+    }
+
     await client.leave(room);
   }
 
   @SubscribeMessage("send-message")
   handleMessage(
     @MessageBody() data: { room: string; message: string; senderId: number },
+    @ConnectedSocket() client: Socket,
   ): void {
     const { room, message, senderId } = data;
+
+    const isValidClientRoom = this.validateClientRoom(client.user?.sub, room);
+
+    if (!isValidClientRoom) {
+      throw new WsException(
+        "You are not allowed to send messages in this room",
+      );
+    }
 
     this.server.to(room).emit("new-message", {
       message,
@@ -67,8 +105,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage("typing")
-  handleTyping(@MessageBody() data: { room: string; senderId: number }): void {
+  handleTyping(
+    @MessageBody() data: { room: string; senderId: number },
+    @ConnectedSocket() client: Socket,
+  ): void {
     const { room, senderId } = data;
+
+    const isValidClientRoom = this.validateClientRoom(client.user?.sub, room);
+
+    if (!isValidClientRoom) {
+      throw new WsException("You are not allowed to type in this room");
+    }
 
     this.server.to(room).emit("user-typing", {
       senderId,
@@ -78,8 +125,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage("stop-typing")
   handleStopTyping(
     @MessageBody() data: { room: string; senderId: number },
+    @ConnectedSocket() client: Socket,
   ): void {
     const { room, senderId } = data;
+
+    const isValidClientRoom = this.validateClientRoom(client.user?.sub, room);
+
+    if (!isValidClientRoom) {
+      throw new WsException("You are not allowed to stop typing in this room");
+    }
 
     this.server.to(room).emit("user-stop-typing", {
       senderId,

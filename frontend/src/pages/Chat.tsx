@@ -75,6 +75,8 @@ export default function ChatPage() {
 
     const socket = getSocket();
 
+    socket?.emit("join-room", roomId);
+
     socket?.on("new-message", async (data) => {
       const newMsg = {
         text: data.message,
@@ -98,7 +100,7 @@ export default function ChatPage() {
       socket?.emit("leave-room", roomId);
       socket?.off("new-message");
     };
-  }, [myId, roomId]);
+  }, [myId, otherId, roomId]);
 
   useEffect(() => {
     const socket = getSocket();
@@ -259,7 +261,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     borderBottomWidth: 1,
     borderBottomColor: colors.light.borderLight,
     backgroundColor: colors.light.backgroundCard,
@@ -269,7 +271,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 6,
   },
 
   avatar: {

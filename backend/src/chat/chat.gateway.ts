@@ -40,8 +40,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ): Promise<void> {
     await client.join(room);
-
-    this.logger.log(`Client ${client.id} joined room: ${room}`);
   }
 
   @SubscribeMessage("leave-room")
@@ -50,24 +48,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ): Promise<void> {
     await client.leave(room);
-
-    this.logger.log(`Client ${client.id} left room: ${room}`);
   }
 
   @SubscribeMessage("send-message")
   handleMessage(
-    @MessageBody() data: { room: string; message: string },
-    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { room: string; message: string; senderId: number },
   ): void {
-    const { room, message } = data;
+    const { room, message, senderId } = data;
 
     this.server.to(room).emit("new-message", {
       message,
-      senderId: client.id,
+      senderId,
     });
-
-    this.logger.log(
-      `Client ${client.id} sent message to room ${room}: ${message}`,
-    );
   }
 }

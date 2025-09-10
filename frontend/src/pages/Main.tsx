@@ -30,7 +30,12 @@ export default function MainPage() {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.chatItem}
-            onPress={() => navigation.navigate("ChatPage")}
+            onPress={() =>
+              navigation.navigate("ChatPage", {
+                myId: user!.id,
+                otherId: item.id,
+              })
+            }
           >
             <Image source={{ uri: item.avatar_url }} style={styles.avatar} />
             <View style={styles.textContainer}>

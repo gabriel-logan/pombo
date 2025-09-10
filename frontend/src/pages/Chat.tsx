@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -7,23 +8,66 @@ import {
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useRoute } from "@react-navigation/native";
 
 import BtnGoBack from "../components/BtnGoBack";
+import { getSocket } from "../lib/socketInstance";
+import { ChatNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
 
-const messages = [
-  { id: "1", text: "Oi, tudo bem?", sender: "other" },
-  { id: "2", text: "Tudo ótimo! E você?", sender: "me" },
-  { id: "3", text: "Também! Bora marcar algo?", sender: "other" },
-  { id: "4", text: "Bora sim 😄", sender: "me" },
-  {
-    id: "5",
-    text: "Mensagem gigante bbbbbbbbbbbbbbbbbb bbbbbbbbbbbb bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb bbbbbbbbbbbb bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-    sender: "me",
-  },
-];
+type ChatPageProps = ChatNativeStackScreenProps<"ChatPage">;
+
+function getRoomId(userId1: number, userId2: number) {
+  return [userId1, userId2].sort((a, b) => a - b).join("_");
+}
 
 export default function ChatPage() {
+  const { params } = useRoute<ChatPageProps["route"]>();
+
+  const { myId, otherId } = params;
+
+  const roomId = getRoomId(myId, otherId);
+
+  const [messages, setMessages] = useState<{ text: string; sender: string }[]>(
+    [],
+  );
+
+  const [textInput, setTextInput] = useState("");
+
+  function sendMessage(text: string) {
+    if (text.trim() === "") return;
+
+    const socket = getSocket();
+
+    socket?.emit("send-message", {
+      room: roomId,
+      message: text,
+      senderId: myId,
+    });
+
+    setTextInput("");
+  }
+
+  useEffect(() => {
+    const socket = getSocket();
+
+    socket?.emit("join-room", roomId);
+
+    socket?.on("new-message", (data) => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: data.message,
+          sender: data.senderId === myId ? "me" : "other",
+        },
+      ]);
+    });
+
+    return () => {
+      socket?.emit("leave-room", roomId);
+    };
+  }, [myId, roomId]);
+
   return (
     <View style={styles.container}>
       {/* HEADER */}
@@ -43,7 +87,6 @@ export default function ChatPage() {
       {/* CHAT MESSAGES */}
       <FlatList
         data={messages}
-        keyExtractor={(item) => item.id}
         style={styles.chatArea}
         ListEmptyComponent={
           <Text style={styles.noMessage}>No messages found.</Text>
@@ -107,8 +150,13 @@ export default function ChatPage() {
           style={styles.input}
           placeholder="Digite uma mensagem..."
           placeholderTextColor="#aaa"
+          value={textInput}
+          onChangeText={setTextInput}
         />
-        <TouchableOpacity style={styles.sendButton}>
+        <TouchableOpacity
+          style={styles.sendButton}
+          onPress={() => sendMessage(textInput)}
+        >
           <Ionicons name="send" size={20} color="#fff" />
         </TouchableOpacity>
       </View>

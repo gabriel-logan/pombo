@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Octicons } from "@expo/vector-icons";
 
-import socket from "../lib/socketInstance";
+import { getSocket } from "../lib/socketInstance";
 import colors from "../utils/colors";
 
 export default function TextServerIsAlive() {
@@ -10,6 +10,10 @@ export default function TextServerIsAlive() {
 
   useEffect(() => {
     function checkServerAlive() {
+      const socket = getSocket();
+
+      if (!socket) return;
+
       socket.emit("check-alive", (data: { status: boolean }) => {
         setServerIsAlive((prev) => (prev !== data.status ? data.status : prev));
       });

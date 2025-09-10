@@ -1,12 +1,37 @@
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 
-import { useAuthStore } from "../stores/authStore";
 import { apiPublic } from "../utils/env/api";
 
-const socket = io(apiPublic.serverApiBaseUrl, {
-  auth: {
-    token: useAuthStore.token,
-  },
-});
+let socket: Socket | null = null;
 
-export default socket;
+export function initSocket(token?: string): Socket {
+  if (socket) {
+    return socket;
+  }
+
+  socket = io(apiPublic.serverApiBaseUrl, {
+    auth: { token },
+  });
+
+  return socket;
+}
+
+export function updateSocketToken(token: string) {
+  if (!socket) {
+    return initSocket(token);
+  }
+
+  socket.auth = { token };
+  socket.disconnect().connect();
+}
+
+export function getSocket(): Socket | null {
+  return socket;
+}
+
+export function disconnectSocket() {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
+}

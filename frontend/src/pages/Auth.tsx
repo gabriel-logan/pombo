@@ -6,6 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { v4 as uuidv4 } from "uuid";
 
+import apiInstance from "../lib/apiInstance";
 import { temporaryUserStore } from "../stores/temporaryUserStore";
 import type { AuthUser } from "../types/Auth";
 import { RootNativeStackScreenProps } from "../types/Navigation";
@@ -71,58 +72,45 @@ export default function AuthPage() {
   }, []);
 
   useEffect(() => {
-    if (params?.code) {
-      async function getUser() {
-        try {
-          const response = await fetch(
-            "http://localhost:3000/auth/github/sign-in",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-              },
-              body: JSON.stringify({
-                code: params?.code,
-              }),
-            },
-          );
+    async function getUser(code?: string) {
+      try {
+        const response = await apiInstance.post<AuthUser>(
+          "/auth/github/sign-in",
+          {
+            code,
+          },
+        );
 
-          if (!response.ok) {
-            throw new Error("Failed to fetch access token");
-          }
+        console.log(response.data);
 
-          const data = (await response.json()) as AuthUser;
+        // Save the token in local storage
+        await AsyncStorage.setItem("@pombo", JSON.stringify(response.data));
 
-          console.log(data);
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "RootDrawerNavigator" }],
+        });
+      } catch {
+        await AsyncStorage.removeItem("@pombo");
 
-          // Save the token in local storage
-          await AsyncStorage.setItem("@pombo", JSON.stringify(data));
+        consumedRef.current = false;
+      } finally {
+        // Clean up the URL parameters
+        setParams(null);
 
-          navigation.reset({
-            index: 0,
-            routes: [{ name: "RootDrawerNavigator" }],
-          });
-        } catch {
-          await AsyncStorage.removeItem("@pombo");
-
-          consumedRef.current = false;
-        } finally {
-          // Clean up the URL parameters
-          setParams(null);
-
-          // Clean the URL in web environment
-          if (
-            Platform.OS === "web" &&
-            typeof window !== "undefined" &&
-            window.history?.replaceState
-          ) {
-            const clean = window.location.origin + window.location.pathname;
-            window.history.replaceState({}, document.title, clean);
-          }
+        // Clean the URL in web environment
+        if (
+          Platform.OS === "web" &&
+          typeof window !== "undefined" &&
+          window.history?.replaceState
+        ) {
+          const clean = window.location.origin + window.location.pathname;
+          window.history.replaceState({}, document.title, clean);
         }
       }
+    }
 
+    if (params?.code) {
       getUser();
     }
   }, [navigation, params]);

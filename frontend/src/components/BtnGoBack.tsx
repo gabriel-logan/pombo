@@ -15,7 +15,7 @@ export default function BtnGoBack() {
       style={styles.container}
       onPress={() => navigation.goBack()}
     >
-      <Ionicons name="arrow-back" size={iconSize} color={colorText} />{" "}
+      <Ionicons name="arrow-back" size={iconSize} color={colorText} />
       <Text style={styles.text}>Back</Text>
     </TouchableOpacity>
   );

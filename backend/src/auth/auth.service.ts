@@ -1,5 +1,5 @@
 import { HttpService } from "@nestjs/axios";
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { AuthPayload } from "src/common/types";
@@ -45,18 +45,21 @@ export class AuthService {
     let githubClientSecret: string;
 
     switch (platformOS) {
-      case "web":
+      case "web": {
         githubClientId = githubClientIdWeb;
         githubRedirectUri = githubRedirectUriWeb;
         githubClientSecret = githubClientSecretWeb;
         break;
-      case "android":
+      }
+      case "android": {
         githubClientId = githubClientIdAndroid;
         githubRedirectUri = githubRedirectUriAndroid;
         githubClientSecret = githubClientSecretAndroid;
         break;
-      default:
-        throw new Error("Unsupported platformOS");
+      }
+      default: {
+        throw new BadRequestException("Unsupported platformOS");
+      }
     }
 
     const response = await this.httpService.axiosRef.post<string>(

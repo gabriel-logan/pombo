@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
@@ -8,55 +9,46 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
+import { temporaryUserStore } from "../stores/temporaryUserStore";
+import { AuthUser } from "../types/Auth";
 import { ChatNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
-
-const chats = [
-  {
-    id: "1",
-    name: "Maria Silva",
-    lastMessage: "Oi, tudo bem?",
-    avatar: "https://i.pravatar.cc/100?img=1",
-  },
-  {
-    id: "2",
-    name: "João Souza",
-    lastMessage: "Vamos amanhã?",
-    avatar: "https://i.pravatar.cc/100?img=2",
-  },
-  {
-    id: "3",
-    name: "Grupo Devs",
-    lastMessage: "Código atualizado no GitHub",
-    avatar: "https://i.pravatar.cc/100?img=3",
-  },
-  {
-    id: "4",
-    name: "Ana Pereira",
-    lastMessage: "",
-    avatar: "https://i.pravatar.cc/100?img=4",
-  },
-];
 
 type MainPageProps = ChatNativeStackScreenProps<"MainPage">;
 
 export default function MainPage() {
   const navigation = useNavigation<MainPageProps["navigation"]>();
 
+  const [followings, setFollowings] = useState<AuthUser["following"]["info"]>(
+    [],
+  );
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const user = await temporaryUserStore.getAuthUser();
+
+      if (user) {
+        setFollowings(user.following.info);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={chats}
-        keyExtractor={(item) => item.id}
+        data={followings}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.chatItem}
             onPress={() => navigation.navigate("ChatPage")}
           >
-            <Image source={{ uri: item.avatar }} style={styles.avatar} />
+            <Image source={{ uri: item.avatar_url }} style={styles.avatar} />
             <View style={styles.textContainer}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.lastMessage}>{item.lastMessage}</Text>
+              <Text style={styles.name}>{item.login}</Text>
+              <Text style={styles.lastMessage}>{item.url}</Text>
             </View>
           </TouchableOpacity>
         )}

@@ -37,20 +37,11 @@ export default function AuthPage() {
   }
 
   useEffect(() => {
-    async function checkAuth() {
-      try {
-        if (isLoggedIn) {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: "RootDrawerNavigator" }],
-          });
-        }
-      } finally {
-        setIsLoading(false);
-      }
+    if (isLoggedIn) {
+      navigation.reset({ index: 0, routes: [{ name: "RootDrawerNavigator" }] });
+    } else {
+      setIsLoading(false);
     }
-
-    checkAuth();
   }, [isLoggedIn, navigation]);
 
   useEffect(() => {

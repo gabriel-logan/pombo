@@ -50,6 +50,7 @@ export default function useOAuthHandler(
             "/auth/github/sign-in",
             {
               code: params?.code,
+              platformOS: Platform.OS,
             },
           );
 

@@ -17,9 +17,9 @@ import colors from "../utils/colors";
 type MainPageProps = ChatNativeStackScreenProps<"MainPage">;
 
 export default function MainPage() {
-  const navigation = useNavigation<MainPageProps["navigation"]>();
-
   const { user } = useAuthStore;
+
+  const navigation = useNavigation<MainPageProps["navigation"]>();
 
   const [followings, setFollowings] = useState<AuthUser["following"]["info"]>(
     [],

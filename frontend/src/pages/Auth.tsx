@@ -18,13 +18,13 @@ type AuthPageProps = RootNativeStackScreenProps<"AuthPage">;
 const { githubOauthEndpoint, githubClientId, githubRedirectUri } = githubPublic;
 
 export default function AuthPage() {
+  const { isLoggedIn, signIn, signOut } = useAuthStore;
+
   const [isLoading, setIsLoading] = useState(true);
 
   const [params, setParams] = useState<Linking.QueryParams | null>(null);
 
-  const { isLoggedIn, signIn, signOut } = useAuthStore;
-
-  const consumedRef = useRef(false); // To prevent multiple consumptions of the same code
+  const consumedRef = useRef(false); // To prevent multiple consumptions of the same (QUERY) code
 
   const navigation = useNavigation<AuthPageProps["navigation"]>();
 
@@ -34,20 +34,6 @@ export default function AuthPage() {
     const authUrl = `${githubOauthEndpoint}?client_id=${githubClientId}&redirect_uri=${githubRedirectUri}&state=${randomState}`;
 
     await Linking.openURL(authUrl);
-  }
-
-  function handleUrlString(url?: string | null) {
-    if (!url) return;
-
-    const parsed = Linking.parse(url);
-
-    const code = parsed.queryParams?.code;
-
-    if (code && !consumedRef.current) {
-      consumedRef.current = true;
-
-      setParams(parsed.queryParams);
-    }
   }
 
   useEffect(() => {
@@ -70,6 +56,20 @@ export default function AuthPage() {
   }, [isLoggedIn, navigation]);
 
   useEffect(() => {
+    function handleUrlString(url?: string | null) {
+      if (!url) return;
+
+      const parsed = Linking.parse(url);
+
+      const code = parsed.queryParams?.code;
+
+      if (code && !consumedRef.current) {
+        consumedRef.current = true;
+
+        setParams(parsed.queryParams);
+      }
+    }
+
     Linking.getInitialURL().then(handleUrlString);
 
     const subscription = Linking.addEventListener("url", ({ url }) => {

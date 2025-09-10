@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { create } from "zustand";
 
 import {
   disconnectSocket,
@@ -19,37 +20,38 @@ interface AuthState {
   restoreSession: () => Promise<void>;
 }
 
-export const useAuthStore: AuthState = {
+export const useAuthStore = create<AuthState>((set) => ({
   token: null,
   isLoggedIn: false,
   user: null,
 
-  signIn: async (user: AuthUser) => {
-    useAuthStore.token = user.accessToken;
-    useAuthStore.isLoggedIn = true;
-    useAuthStore.user = user;
+  signIn: async (user) => {
+    const { accessToken } = user;
+
     await AsyncStorage.setItem(authStoreKey, JSON.stringify(user));
-    updateSocketToken(user.accessToken);
+
+    set({ token: accessToken, isLoggedIn: true, user });
+
+    updateSocketToken(accessToken);
   },
 
   signOut: async () => {
-    useAuthStore.token = null;
-    useAuthStore.isLoggedIn = false;
-    useAuthStore.user = null;
     await AsyncStorage.removeItem(authStoreKey);
+
+    set({ token: null, isLoggedIn: false, user: null });
+
     disconnectSocket();
   },
 
   restoreSession: async () => {
-    const userData = await AsyncStorage.getItem(authStoreKey);
+    const storedUser = await AsyncStorage.getItem(authStoreKey);
 
-    if (userData) {
+    if (storedUser) {
       try {
-        const user: AuthUser = JSON.parse(userData);
+        const user: AuthUser = JSON.parse(storedUser);
 
-        useAuthStore.token = user.accessToken;
-        useAuthStore.isLoggedIn = true;
-        useAuthStore.user = user;
+        set({ token: user.accessToken, isLoggedIn: true, user });
+
         initSocket(user.accessToken);
       } catch (error) {
         // eslint-disable-next-line no-console
@@ -61,4 +63,4 @@ export const useAuthStore: AuthState = {
       initSocket();
     }
   },
-};
+}));

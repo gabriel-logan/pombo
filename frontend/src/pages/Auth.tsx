@@ -26,7 +26,7 @@ async function signInWithGitHub() {
 }
 
 export default function AuthPage() {
-  const { isLoggedIn, signIn, signOut } = useAuthStore;
+  const { isLoggedIn, signIn, signOut } = useAuthStore((state) => state);
 
   const [isLoading, setIsLoading] = useState(true);
 

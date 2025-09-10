@@ -10,9 +10,11 @@ import { useAuthStore } from "./src/stores/authStore";
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
 
+  const restoreSession = useAuthStore((state) => state.restoreSession);
+
   useEffect(() => {
-    useAuthStore.restoreSession().finally(() => setIsLoading(false));
-  }, []);
+    restoreSession().finally(() => setIsLoading(false));
+  }, [restoreSession]);
 
   if (isLoading) {
     return <Loading />;

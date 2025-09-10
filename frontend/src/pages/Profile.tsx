@@ -12,7 +12,7 @@ import { useAuthStore } from "../stores/authStore";
 import colors from "../utils/colors";
 
 export default function ProfilePage() {
-  const { signOut, user } = useAuthStore;
+  const { signOut, user } = useAuthStore((state) => state);
 
   const navigation = useNavigation();
 

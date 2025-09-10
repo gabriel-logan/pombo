@@ -23,15 +23,41 @@ export class AuthService {
   async githubSignIn(
     githubAuthDto: GithubAuthRequestDto,
   ): Promise<GithubAuthResponseDto> {
-    const { code } = githubAuthDto;
+    const { code, platformOS } = githubAuthDto;
 
     const {
       oauthEndpoint: githubOauthEndpoint,
-      clientId: githubClientId,
-      redirectUri: githubRedirectUri,
-      clientSecret: githubClientSecret,
       apiEndpoint: githubGetUserEndpoint,
+      web: {
+        clientId: githubClientIdWeb,
+        redirectUri: githubRedirectUriWeb,
+        clientSecret: githubClientSecretWeb,
+      },
+      android: {
+        clientId: githubClientIdAndroid,
+        redirectUri: githubRedirectUriAndroid,
+        clientSecret: githubClientSecretAndroid,
+      },
     } = this.configService.get<EnvSecretConfig["github"]>("github");
+
+    let githubClientId: string;
+    let githubRedirectUri: string;
+    let githubClientSecret: string;
+
+    switch (platformOS) {
+      case "web":
+        githubClientId = githubClientIdWeb;
+        githubRedirectUri = githubRedirectUriWeb;
+        githubClientSecret = githubClientSecretWeb;
+        break;
+      case "android":
+        githubClientId = githubClientIdAndroid;
+        githubRedirectUri = githubRedirectUriAndroid;
+        githubClientSecret = githubClientSecretAndroid;
+        break;
+      default:
+        throw new Error("Unsupported platformOS");
+    }
 
     const response = await this.httpService.axiosRef.post<string>(
       githubOauthEndpoint,

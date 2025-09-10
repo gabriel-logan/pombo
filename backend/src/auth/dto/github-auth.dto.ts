@@ -1,5 +1,6 @@
 export class GithubAuthRequestDto {
   public code: string;
+  public platformOS: "web" | "android" | "ios";
 }
 
 export class FollowerFollowingInfo {

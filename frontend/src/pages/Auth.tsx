@@ -5,6 +5,7 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { v4 as uuidv4 } from "uuid";
 
+import Loading from "../components/Loading";
 import apiInstance from "../lib/apiInstance";
 import { temporaryUserStore } from "../stores/temporaryUserStore";
 import type { AuthUser } from "../types/Auth";
@@ -17,6 +18,8 @@ type AuthPageProps = RootNativeStackScreenProps<"AuthPage">;
 const { githubOauthEndpoint, githubClientId, githubRedirectUri } = githubPublic;
 
 export default function AuthPage() {
+  const [isLoading, setIsLoading] = useState(true);
+
   const [params, setParams] = useState<Linking.QueryParams | null>(null);
 
   const consumedRef = useRef(false); // To prevent multiple consumptions of the same code
@@ -47,13 +50,19 @@ export default function AuthPage() {
 
   useEffect(() => {
     async function checkAuth() {
-      const userData = await temporaryUserStore.getAuthUser();
+      setIsLoading(true);
 
-      if (userData) {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "RootDrawerNavigator" }],
-        });
+      try {
+        const userData = await temporaryUserStore.getAuthUser();
+
+        if (userData) {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "RootDrawerNavigator" }],
+          });
+        }
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -113,6 +122,10 @@ export default function AuthPage() {
       getUser();
     }
   }, [navigation, params]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <View style={styles.container}>

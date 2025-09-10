@@ -85,12 +85,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage("send-message")
   handleMessage(
-    @MessageBody() data: { room: string; message: string; senderId: number },
+    @MessageBody() data: { room: string; message: string },
     @ConnectedSocket() client: Socket,
   ): void {
-    const { room, message, senderId } = data;
+    const { room, message } = data;
 
-    const isValidClientRoom = this.validateClientRoom(client.user?.sub, room);
+    const senderId = client.user?.sub;
+
+    const isValidClientRoom = this.validateClientRoom(senderId, room);
 
     if (!isValidClientRoom) {
       throw new WsException(
@@ -100,43 +102,47 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.server.to(room).emit("new-message", {
       message,
-      senderId,
+      senderId: parseInt(senderId ?? "0", 10),
     });
   }
 
   @SubscribeMessage("typing")
   handleTyping(
-    @MessageBody() data: { room: string; senderId: number },
+    @MessageBody() data: { room: string },
     @ConnectedSocket() client: Socket,
   ): void {
-    const { room, senderId } = data;
+    const { room } = data;
 
-    const isValidClientRoom = this.validateClientRoom(client.user?.sub, room);
+    const senderId = client.user?.sub;
+
+    const isValidClientRoom = this.validateClientRoom(senderId, room);
 
     if (!isValidClientRoom) {
       throw new WsException("You are not allowed to type in this room");
     }
 
     this.server.to(room).emit("user-typing", {
-      senderId,
+      senderId: parseInt(senderId ?? "0", 10),
     });
   }
 
   @SubscribeMessage("stop-typing")
   handleStopTyping(
-    @MessageBody() data: { room: string; senderId: number },
+    @MessageBody() data: { room: string },
     @ConnectedSocket() client: Socket,
   ): void {
-    const { room, senderId } = data;
+    const { room } = data;
 
-    const isValidClientRoom = this.validateClientRoom(client.user?.sub, room);
+    const senderId = client.user?.sub;
+
+    const isValidClientRoom = this.validateClientRoom(senderId, room);
 
     if (!isValidClientRoom) {
       throw new WsException("You are not allowed to stop typing in this room");
     }
 
     this.server.to(room).emit("user-stop-typing", {
-      senderId,
+      senderId: parseInt(senderId ?? "0", 10),
     });
   }
 }

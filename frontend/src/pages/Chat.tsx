@@ -153,18 +153,25 @@ export default function ChatPage() {
     if (textInput.trim() !== "") {
       socket?.emit("typing", { room: roomId, senderId: myId });
 
-      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+      if (typingTimeout.current) {
+        clearTimeout(typingTimeout.current);
+      }
 
       typingTimeout.current = setTimeout(() => {
         socket?.emit("stop-typing", { room: roomId, senderId: myId });
       }, 1250);
     } else {
       socket?.emit("stop-typing", { room: roomId, senderId: myId });
-      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+
+      if (typingTimeout.current) {
+        clearTimeout(typingTimeout.current);
+      }
     }
 
     return () => {
-      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+      if (typingTimeout.current) {
+        clearTimeout(typingTimeout.current);
+      }
     };
   }, [myId, roomId, textInput]);
 

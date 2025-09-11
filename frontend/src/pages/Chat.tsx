@@ -37,8 +37,11 @@ export default function ChatPage() {
   const [textInput, setTextInput] = useState("");
   const [status, setStatus] = useState<"online" | "offline">("offline");
   const [typing, setTyping] = useState(false);
+
   // With debounce - typing indicator
-  const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeout = useRef<NodeJS.Timeout>(null);
+  // FlatList reference
+  const flatListRef = useRef<FlatList>(null);
 
   async function handleSendMessage() {
     if (!textInput.trim()) return;
@@ -175,6 +178,10 @@ export default function ChatPage() {
     };
   }, [myId, roomId, textInput]);
 
+  useEffect(() => {
+    flatListRef.current?.scrollToEnd({ animated: true });
+  }, [messages.length]);
+
   if (isLoading) {
     return <Loading />;
   }
@@ -214,10 +221,14 @@ export default function ChatPage() {
 
           {/* CHAT MESSAGES */}
           <FlatList
+            ref={flatListRef}
             data={messages}
             keyExtractor={(_, index) => index.toString()}
             style={styles.chatArea}
             contentContainerStyle={{ paddingBottom: 20 }}
+            onContentSizeChange={() =>
+              flatListRef.current?.scrollToEnd({ animated: true })
+            }
             ListEmptyComponent={
               <Text style={styles.noMessage}>No messages found.</Text>
             }

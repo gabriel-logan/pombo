@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   FlatList,
   KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -202,114 +203,112 @@ export default function ChatPage() {
   }
 
   return (
-    <SafeAreaView
-      style={{ flex: 1, backgroundColor: colors.light.backgroundCard }}
-    >
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-        <View style={styles.container}>
-          {/* HEADER */}
-          <View style={styles.header}>
-            <BtnGoBack />
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+      >
+        {/* HEADER */}
+        <View style={styles.header}>
+          <BtnGoBack />
 
-            <View style={styles.headerTitle}>
-              <Image source={{ uri: otherAvatarUrl }} style={styles.avatar} />
-              <View>
-                <Text style={styles.username}>{otherUsername}</Text>
-                <Text style={styles.status}>Status: {status}</Text>
-              </View>
-            </View>
-
-            <View style={styles.iconsRight}>
-              {(
-                [
-                  "call-outline",
-                  "videocam-outline",
-                  "desktop-outline",
-                ] as (keyof typeof Ionicons.glyphMap)[]
-              ).map((icon) => (
-                <TouchableOpacity key={icon}>
-                  <Ionicons name={icon} size={22} color="#4A90E2" />
-                </TouchableOpacity>
-              ))}
+          <View style={styles.headerTitle}>
+            <Image source={{ uri: otherAvatarUrl }} style={styles.avatar} />
+            <View>
+              <Text style={styles.username}>{otherUsername}</Text>
+              <Text style={styles.status}>Status: {status}</Text>
             </View>
           </View>
 
-          {/* CHAT MESSAGES */}
-          <FlatList
-            ref={flatListRef}
-            data={messages}
-            keyExtractor={(_, index) => index.toString()}
-            style={styles.chatArea}
-            contentContainerStyle={{ paddingBottom: 20 }}
-            onContentSizeChange={() =>
-              flatListRef.current?.scrollToEnd({ animated: true })
-            }
-            ListEmptyComponent={
-              <Text style={styles.noMessage}>No messages found.</Text>
-            }
-            renderItem={({ item }) => (
-              <View
-                style={[
-                  styles.message,
-                  item.sender === "me" ? styles.myMessage : styles.otherMessage,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.messageText,
-                    item.sender === "me" && { color: "#fff" },
-                  ]}
-                >
-                  {item.text}
-                </Text>
-              </View>
-            )}
-          />
-
-          {/* Typing */}
-          {typing && (
-            <View style={styles.typingContainer}>
-              <Text style={styles.typingText}>
-                {otherUsername} is typing...
-              </Text>
-            </View>
-          )}
-
-          {/* INPUT AREA */}
-          <View style={styles.inputBar}>
+          <View style={styles.iconsRight}>
             {(
               [
-                "happy-outline",
-                "attach-outline",
+                "call-outline",
+                "videocam-outline",
+                "desktop-outline",
               ] as (keyof typeof Ionicons.glyphMap)[]
             ).map((icon) => (
               <TouchableOpacity key={icon}>
-                <Ionicons
-                  name={icon}
-                  size={22}
-                  color="#666"
-                  style={styles.icon}
-                />
+                <Ionicons name={icon} size={22} color="#4A90E2" />
               </TouchableOpacity>
             ))}
-
-            <TextInput
-              style={styles.input}
-              placeholder="Digite uma mensagem..."
-              placeholderTextColor="#aaa"
-              value={textInput}
-              onChangeText={setTextInput}
-            />
-
-            {textInput.trim() !== "" && (
-              <TouchableOpacity
-                style={styles.sendButton}
-                onPress={handleSendMessage}
-              >
-                <Ionicons name="send" size={20} color="#fff" />
-              </TouchableOpacity>
-            )}
           </View>
+        </View>
+
+        {/* CHAT MESSAGES */}
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={(_, index) => index.toString()}
+          style={styles.chatArea}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          onContentSizeChange={() =>
+            flatListRef.current?.scrollToEnd({ animated: true })
+          }
+          ListEmptyComponent={
+            <Text style={styles.noMessage}>No messages found.</Text>
+          }
+          renderItem={({ item }) => (
+            <View
+              style={[
+                styles.message,
+                item.sender === "me" ? styles.myMessage : styles.otherMessage,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.messageText,
+                  item.sender === "me" && { color: "#fff" },
+                ]}
+              >
+                {item.text}
+              </Text>
+            </View>
+          )}
+        />
+
+        {/* Typing */}
+        {typing && (
+          <View style={styles.typingContainer}>
+            <Text style={styles.typingText}>{otherUsername} is typing...</Text>
+          </View>
+        )}
+
+        {/* INPUT AREA */}
+        <View style={styles.inputBar}>
+          {(
+            [
+              "happy-outline",
+              "attach-outline",
+            ] as (keyof typeof Ionicons.glyphMap)[]
+          ).map((icon) => (
+            <TouchableOpacity key={icon}>
+              <Ionicons
+                name={icon}
+                size={22}
+                color="#666"
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+          ))}
+
+          <TextInput
+            style={styles.input}
+            placeholder="Digite uma mensagem..."
+            placeholderTextColor="#aaa"
+            value={textInput}
+            onChangeText={setTextInput}
+          />
+
+          {textInput.trim() !== "" && (
+            <TouchableOpacity
+              style={styles.sendButton}
+              onPress={handleSendMessage}
+            >
+              <Ionicons name="send" size={20} color="#fff" />
+            </TouchableOpacity>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

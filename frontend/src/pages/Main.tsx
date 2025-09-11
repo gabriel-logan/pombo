@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
 
@@ -20,7 +21,7 @@ export default function MainPage() {
   const navigation = useNavigation<MainPageProps["navigation"]>();
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <FlatList
         data={user?.following.info}
         keyExtractor={(item) => item.id.toString()}
@@ -47,7 +48,7 @@ export default function MainPage() {
           </TouchableOpacity>
         )}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

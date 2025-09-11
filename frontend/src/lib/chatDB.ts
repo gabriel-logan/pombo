@@ -12,6 +12,7 @@ export interface Message {
   text: string;
   sender: string;
   createdAt: number;
+  clientMsgId: string;
 }
 
 export async function initDB() {

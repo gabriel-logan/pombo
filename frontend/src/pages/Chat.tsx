@@ -57,6 +57,7 @@ export default function ChatPage() {
       text: textInput,
       sender: "me",
       createdAt: Date.now(),
+      clientMsgId,
     };
 
     setMessages((prev) => [...prev, newMsg]);
@@ -85,18 +86,29 @@ export default function ChatPage() {
 
         socket?.emit("join-room", roomId);
 
-        // Receive new messages
+        // New message listener
         socket?.on("new-message", async (data) => {
-          const newMsg: Message = {
-            id: Date.now(),
-            roomId,
-            text: data.message,
-            sender: data.senderId === myId ? "me" : "other",
-            createdAt: data.timestamp,
-          };
+          setMessages((prev) => {
+            // Prevent duplicate messages using clientMsgId
+            const alreadyExists = prev.some(
+              (msg) => msg.clientMsgId && msg.clientMsgId === data.clientMsgId,
+            );
+            if (alreadyExists) return prev;
 
-          await saveMessage(roomId, newMsg.text, newMsg.sender);
-          setMessages((prev) => [...prev, newMsg]);
+            const newMsg: Message = {
+              id: Date.now(),
+              roomId,
+              text: data.message,
+              sender: data.senderId === myId ? "me" : "other",
+              createdAt: data.timestamp,
+              clientMsgId: data.clientMsgId,
+            };
+
+            // salva no banco também
+            saveMessage(roomId, newMsg.text, newMsg.sender);
+
+            return [...prev, newMsg];
+          });
         });
 
         // Status online/offline

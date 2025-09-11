@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  Alert,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -43,6 +44,14 @@ export default function ChatPage() {
   const typingTimeout = useRef<NodeJS.Timeout>(null);
   // FlatList reference
   const flatListRef = useRef<FlatList>(null);
+
+  function notImplementedAlert() {
+    if (Platform.OS === "web") {
+      alert("This feature is not implemented yet.");
+    } else {
+      Alert.alert("Info", "This feature is not implemented yet.");
+    }
+  }
 
   async function handleSendMessage() {
     if (!textInput.trim()) return;
@@ -229,7 +238,7 @@ export default function ChatPage() {
                 "desktop-outline",
               ] as (keyof typeof Ionicons.glyphMap)[]
             ).map((icon) => (
-              <TouchableOpacity key={icon}>
+              <TouchableOpacity key={icon} onPress={notImplementedAlert}>
                 <Ionicons name={icon} size={22} color="#4A90E2" />
               </TouchableOpacity>
             ))}
@@ -283,7 +292,7 @@ export default function ChatPage() {
               "attach-outline",
             ] as (keyof typeof Ionicons.glyphMap)[]
           ).map((icon) => (
-            <TouchableOpacity key={icon}>
+            <TouchableOpacity key={icon} onPress={notImplementedAlert}>
               <Ionicons
                 name={icon}
                 size={22}

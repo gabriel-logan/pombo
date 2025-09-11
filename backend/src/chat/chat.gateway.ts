@@ -105,25 +105,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @Public()
+  @SubscribeMessage("check-alive")
+  handleAlive(): { status: boolean } {
+    return { status: true };
+  }
+
   @SubscribeMessage("check-online-status")
   handleCheckOnlineStatus(@MessageBody() otherId: number): { online: boolean } {
     const isOnline = this.usersOnline.has(otherId);
 
     return { online: isOnline };
-  }
-
-  @SubscribeMessage("get-room-status")
-  handleRoomStatus(@MessageBody() room: string): { usersInRoom: number } {
-    const roomSockets = this.server.sockets.adapter.rooms.get(room);
-    const count = roomSockets ? roomSockets.size : 0;
-
-    return { usersInRoom: count };
-  }
-
-  @Public()
-  @SubscribeMessage("check-alive")
-  handleAlive(): { status: boolean } {
-    return { status: true };
   }
 
   @SubscribeMessage("join-room")
@@ -238,80 +230,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const { sub: authenticatedClientId } = client.user!;
 
     this.server.to(room).emit("user-stop-typing", {
-      senderId: parseInt(authenticatedClientId, 10),
-    });
-  }
-
-  @SubscribeMessage("rtc-offer")
-  handleRTCOffer(
-    @MessageBody() data: { room: string; offer: unknown },
-    @ConnectedSocket() client: Socket,
-  ): void {
-    const { room, offer } = data;
-
-    const { sub: authenticatedClientId } = client.user!;
-
-    const isValidClientRoom = this.validateClientRoom(
-      authenticatedClientId,
-      room,
-    );
-
-    if (!isValidClientRoom) {
-      throw new WsException("You are not allowed to send offers in this room");
-    }
-
-    this.server.to(room).emit("rtc-offer", {
-      offer,
-      senderId: parseInt(authenticatedClientId, 10),
-    });
-  }
-
-  @SubscribeMessage("rtc-answer")
-  handleRTCAnswer(
-    @MessageBody() data: { room: string; answer: unknown },
-    @ConnectedSocket() client: Socket,
-  ): void {
-    const { room, answer } = data;
-
-    const { sub: authenticatedClientId } = client.user!;
-
-    const isValidClientRoom = this.validateClientRoom(
-      authenticatedClientId,
-      room,
-    );
-
-    if (!isValidClientRoom) {
-      throw new WsException("You are not allowed to send answers in this room");
-    }
-
-    this.server.to(room).emit("rtc-answer", {
-      answer,
-      senderId: parseInt(authenticatedClientId, 10),
-    });
-  }
-
-  @SubscribeMessage("rtc-ice-candidate")
-  handleRTCIceCandidate(
-    @MessageBody() data: { room: string; candidate: unknown },
-    @ConnectedSocket() client: Socket,
-  ): void {
-    const { room, candidate } = data;
-
-    const { sub: authenticatedClientId } = client.user!;
-
-    const isValidClientRoom = this.validateClientRoom(
-      authenticatedClientId,
-      room,
-    );
-
-    if (!isValidClientRoom) {
-      throw new WsException(
-        "You are not allowed to send ICE candidates in this room",
-      );
-    }
-
-    this.server.to(room).emit("rtc-ice-candidate", {
-      candidate,
       senderId: parseInt(authenticatedClientId, 10),
     });
   }

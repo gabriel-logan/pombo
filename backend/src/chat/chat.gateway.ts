@@ -26,7 +26,7 @@ import { EnvSecretConfig } from "src/configs/types";
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(ChatGateway.name);
 
-  private readonly usersOnline: Map<number, string> = new Map();
+  private readonly onlineUsers: Map<number, string> = new Map();
 
   private readonly offlineMessages: Map<
     string,
@@ -83,7 +83,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (user) {
       const userId = parseInt(user.sub, 10);
 
-      this.usersOnline.set(userId, client.id);
+      this.onlineUsers.set(userId, client.id);
 
       this.server.emit("user-online", { userId });
     }
@@ -99,7 +99,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (user) {
       const userId = parseInt(user.sub, 10);
 
-      this.usersOnline.delete(userId);
+      this.onlineUsers.delete(userId);
 
       this.server.emit("user-offline", { userId });
     }
@@ -113,7 +113,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage("check-online-status")
   handleCheckOnlineStatus(@MessageBody() otherId: number): { online: boolean } {
-    const isOnline = this.usersOnline.has(otherId);
+    const isOnline = this.onlineUsers.has(otherId);
 
     return { online: isOnline };
   }

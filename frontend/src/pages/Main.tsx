@@ -1,5 +1,6 @@
 import {
   FlatList,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -21,7 +22,12 @@ export default function MainPage() {
   const navigation = useNavigation<MainPageProps["navigation"]>();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={styles.container}
+      edges={
+        Platform.OS === "android" ? ["bottom", "left", "right"] : undefined
+      }
+    >
       <FlatList
         data={user?.following.info}
         keyExtractor={(item) => item.id.toString()}

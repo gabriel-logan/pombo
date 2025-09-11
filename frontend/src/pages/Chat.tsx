@@ -1,9 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Alert,
   FlatList,
   KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -17,7 +15,7 @@ import { useRoute } from "@react-navigation/native";
 
 import BtnGoBack from "../components/BtnGoBack";
 import Loading from "../components/Loading";
-import { initDB, loadMessages, saveMessage } from "../lib/chatDB";
+import { initDB, loadMessages, Message, saveMessage } from "../lib/chatDB";
 import { getSocket } from "../lib/socketInstance";
 import { RootNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
@@ -30,129 +28,105 @@ function getRoomId(userId1: number, userId2: number) {
 
 export default function ChatPage() {
   const { params } = useRoute<ChatPageProps["route"]>();
-
-  const [isLoading, setIsLoading] = useState(false);
-
   const { myId, otherId, otherAvatarUrl, otherUsername } = params;
 
   const roomId = getRoomId(myId, otherId);
 
-  const [messages, setMessages] = useState<{ text: string; sender: string }[]>(
-    [],
-  );
-
+  const [isLoading, setIsLoading] = useState(true);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [textInput, setTextInput] = useState("");
-
   const [typing, setTyping] = useState(false);
   const [status, setStatus] = useState<"online" | "offline">("offline");
 
-  const localVideoRef = useRef<any>(null);
-  const remoteVideoRef = useRef<any>(null);
-
-  async function startVideoCall() {
-    const socket = getSocket();
-    const pc = new RTCPeerConnection();
-
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
-
-    localVideoRef.current.srcObject = stream;
-
-    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-
-    pc.ontrack = (event) => {
-      remoteVideoRef.current.srcObject = event.streams[0];
-    };
-
-    pc.onicecandidate = (event) => {
-      if (event.candidate) {
-        socket?.emit("rtc-ice-candidate", {
-          room: roomId,
-          candidate: event.candidate,
-        });
-      }
-    };
-
-    socket?.on("rtc-offer", async (offer: RTCSessionDescriptionInit) => {
-      await pc.setRemoteDescription(offer);
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-      socket.emit("rtc-answer", { room: roomId, sdp: answer });
-    });
-
-    socket?.on("rtc-answer", async (answer: RTCSessionDescriptionInit) => {
-      await pc.setRemoteDescription(answer);
-    });
-
-    socket?.on("ice-candidate", (candidate: RTCIceCandidateInit) => {
-      pc.addIceCandidate(candidate);
-    });
-
-    const offer = await pc.createOffer();
-
-    await pc.setLocalDescription(offer);
-
-    socket?.emit("rtc-offer", { room: roomId, sdp: offer });
-  }
-
-  function sendMessage(text: string) {
-    if (text.trim() === "") return;
-
-    if (status === "offline") {
-      const alertMsg =
-        "The user is offline. You can't send messages because the message will not be delivered.";
-      if (Platform.OS === "web") {
-        alert(alertMsg);
-      } else {
-        Alert.alert("User Offline", alertMsg);
-      }
-
-      return;
-    }
+  async function handleSendMessage() {
+    if (!textInput.trim()) return;
 
     const socket = getSocket();
 
-    socket?.emit("get-room-status", roomId, (res: { usersInRoom: number }) => {
-      if (res.usersInRoom < 2) {
-        const alertMsg =
-          "Cannot send message: the other user is not in the chat.";
+    const clientMsgId = `${Date.now()}-${Math.random()}`;
 
-        if (Platform.OS === "web") {
-          alert(alertMsg);
-        } else {
-          Alert.alert("Cannot send message", alertMsg);
-        }
-        return;
-      }
+    // Local immediate message
+    const newMsg: Message = {
+      id: Date.now(),
+      roomId,
+      text: textInput,
+      sender: "me",
+      createdAt: Date.now(),
+    };
 
-      socket.emit("send-message", {
-        room: roomId,
-        message: text,
-      });
+    setMessages((prev) => [...prev, newMsg]);
 
-      setTextInput("");
+    await saveMessage(roomId, newMsg.text, "me");
+
+    socket?.emit("send-message", {
+      room: roomId,
+      message: textInput,
+      clientMsgId,
     });
+
+    setTextInput("");
   }
 
   useEffect(() => {
-    let isMounted = true;
+    const socket = getSocket();
 
     async function setup() {
-      setIsLoading(true);
-
       try {
         await initDB();
 
-        const saved = await loadMessages(roomId);
+        const loadedMessages = await loadMessages(roomId);
 
-        if (isMounted) {
-          setMessages(saved);
-        }
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error("Erro ao inicializar banco:", err);
+        setMessages(loadedMessages);
+
+        socket?.emit("join-room", roomId);
+
+        // Receive new messages
+        socket?.on("new-message", async (data) => {
+          const newMsg: Message = {
+            id: Date.now(),
+            roomId,
+            text: data.message,
+            sender: data.senderId === myId ? "me" : "other",
+            createdAt: data.timestamp,
+          };
+
+          await saveMessage(roomId, newMsg.text, newMsg.sender);
+          setMessages((prev) => [...prev, newMsg]);
+        });
+
+        // Status online/offline
+        socket?.on("user-online", ({ userId }) => {
+          if (userId === otherId) {
+            setStatus("online");
+          }
+        });
+
+        socket?.on("user-offline", ({ userId }) => {
+          if (userId === otherId) {
+            setStatus("offline");
+          }
+        });
+
+        // Typing indicator
+        socket?.on("user-typing", ({ senderId }) => {
+          if (senderId === otherId) {
+            setTyping(true);
+          }
+        });
+        socket?.on("user-stop-typing", ({ senderId }) => {
+          if (senderId === otherId) {
+            setTyping(false);
+          }
+        });
+
+        // Check if the other user is online
+        socket?.emit(
+          "check-online-status",
+          otherId,
+          (res: { online: boolean }) => {
+            setStatus(res.online ? "online" : "offline");
+          },
+        );
       } finally {
         setIsLoading(false);
       }
@@ -160,93 +134,15 @@ export default function ChatPage() {
 
     setup();
 
-    const socket = getSocket();
-
-    socket?.emit("join-room", roomId);
-
-    socket?.on("new-message", async (data) => {
-      const newMsg = {
-        text: data.message,
-        sender: data.senderId === myId ? "me" : "other",
-      };
-
-      if (isMounted) {
-        setMessages((prev) => [...prev, newMsg]);
-      }
-
-      try {
-        await saveMessage(roomId, data.message, newMsg.sender);
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error("Erro ao salvar mensagem:", err);
-      }
-    });
-
     return () => {
-      isMounted = false;
       socket?.emit("leave-room", roomId);
       socket?.off("new-message");
-    };
-  }, [myId, otherId, roomId]);
-
-  useEffect(() => {
-    const socket = getSocket();
-    let typingTimeout: NodeJS.Timeout;
-
-    if (textInput.length > 0) {
-      socket?.emit("typing", { room: roomId });
-
-      typingTimeout = setTimeout(() => {
-        socket?.emit("stop-typing", { room: roomId });
-      }, 1000); // 1s depois de parar de digitar
-    } else {
-      socket?.emit("stop-typing", { room: roomId });
-    }
-
-    return () => clearTimeout(typingTimeout);
-  }, [myId, roomId, textInput.length]);
-
-  useEffect(() => {
-    const socket = getSocket();
-
-    socket?.on("user-typing", ({ senderId }) => {
-      if (senderId === otherId) setTyping(true);
-    });
-
-    socket?.on("user-stop-typing", ({ senderId }) => {
-      if (senderId === otherId) setTyping(false);
-    });
-
-    return () => {
+      socket?.off("user-online");
+      socket?.off("user-offline");
       socket?.off("user-typing");
       socket?.off("user-stop-typing");
     };
-  }, [otherId]);
-
-  useEffect(() => {
-    const socket = getSocket();
-
-    socket?.emit("check-online-status", otherId, (res: { online: boolean }) => {
-      setStatus(res.online ? "online" : "offline");
-    });
-
-    socket?.on("user-online", ({ userId }) => {
-      if (userId === otherId) {
-        setStatus("online");
-      }
-    });
-
-    socket?.on("user-offline", ({ userId }) => {
-      if (userId === otherId) {
-        setStatus("offline");
-      }
-    });
-
-    return () => {
-      socket?.off("user-online");
-      socket?.off("user-offline");
-    };
-  }, [otherId]);
+  }, [myId, otherId, roomId]);
 
   if (isLoading) {
     return <Loading />;
@@ -278,12 +174,7 @@ export default function ChatPage() {
                   "desktop-outline",
                 ] as (keyof typeof Ionicons.glyphMap)[]
               ).map((icon) => (
-                <TouchableOpacity
-                  key={icon}
-                  onPress={
-                    icon === "videocam-outline" ? startVideoCall : undefined
-                  }
-                >
+                <TouchableOpacity key={icon}>
                   <Ionicons name={icon} size={22} color="#4A90E2" />
                 </TouchableOpacity>
               ))}
@@ -356,7 +247,7 @@ export default function ChatPage() {
             {textInput.trim() !== "" && (
               <TouchableOpacity
                 style={styles.sendButton}
-                onPress={() => sendMessage(textInput)}
+                onPress={handleSendMessage}
               >
                 <Ionicons name="send" size={20} color="#fff" />
               </TouchableOpacity>

@@ -266,4 +266,91 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       senderId: parseInt(authenticatedClientId, 10),
     });
   }
+
+  @SubscribeMessage("call-user")
+  handleCallUser(
+    @MessageBody() data: { targetId: number; offer: unknown },
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const { targetId, offer } = data;
+
+    const callerId = parseInt(client.user!.sub, 10);
+
+    // Verify if the target user is online
+    const targetSocketId = this.onlineUsers.get(targetId);
+    if (!targetSocketId) {
+      client.emit("call-error", { message: "User is offline" });
+      return;
+    }
+
+    // Send the offer to the target user
+    this.server.to(targetSocketId).emit("incoming-call", {
+      from: callerId,
+      offer,
+    });
+  }
+
+  @SubscribeMessage("answer-call")
+  handleAnswerCall(
+    @MessageBody()
+    data: { targetId: number; answer: unknown; accepted: boolean },
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const { targetId, answer, accepted } = data;
+
+    const responderId = parseInt(client.user!.sub, 10);
+
+    const targetSocketId = this.onlineUsers.get(targetId);
+
+    if (!targetSocketId) {
+      client.emit("call-error", { message: "User is offline" });
+      return;
+    }
+
+    this.server.to(targetSocketId).emit("call-answered", {
+      from: responderId,
+      answer,
+      accepted,
+    });
+  }
+
+  @SubscribeMessage("end-call")
+  handleEndCall(
+    @MessageBody() data: { targetId: number },
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const { targetId } = data;
+
+    const senderId = parseInt(client.user!.sub, 10);
+
+    const targetSocketId = this.onlineUsers.get(targetId);
+
+    if (!targetSocketId) {
+      return;
+    }
+
+    this.server.to(targetSocketId).emit("call-ended", {
+      from: senderId,
+    });
+  }
+
+  @SubscribeMessage("candidate")
+  handleCandidate(
+    @MessageBody() data: { targetId: number; candidate: unknown },
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const { targetId, candidate } = data;
+    const senderId = parseInt(client.user!.sub, 10);
+
+    const targetSocketId = this.onlineUsers.get(targetId);
+
+    if (!targetSocketId) {
+      return;
+    }
+
+    this.server.to(targetSocketId).emit("candidate", {
+      from: senderId,
+      candidate,
+    });
+  }
 }

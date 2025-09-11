@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import {
+  Alert,
   FlatList,
   KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -46,6 +48,16 @@ export default function ChatPage() {
 
   function sendMessage(text: string) {
     if (text.trim() === "") return;
+
+    if (status === "offline") {
+      const alertMsg =
+        "The user is offline. You can't send messages because the message will not be delivered.";
+      if (Platform.OS === "web") {
+        return alert(alertMsg);
+      } else {
+        return Alert.alert("User Offline", alertMsg);
+      }
+    }
 
     const socket = getSocket();
 

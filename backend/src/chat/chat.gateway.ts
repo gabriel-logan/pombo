@@ -33,7 +33,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     Array<{
       senderId: number;
       message: string;
-      timestamp: Date;
+      timestamp: number;
     }>
   > = new Map();
 
@@ -193,7 +193,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       clientMsgId,
       message,
       senderId: parseInt(authenticatedClientId, 10),
-      timestamp: new Date(),
+      timestamp: Date.now(),
     } as const;
 
     // Acknowledge to sender that message is sent

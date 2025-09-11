@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -35,8 +35,10 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [textInput, setTextInput] = useState("");
-  const [typing, setTyping] = useState(false);
   const [status, setStatus] = useState<"online" | "offline">("offline");
+  const [typing, setTyping] = useState(false);
+  // With debounce - typing indicator
+  const typingTimeout = useRef<NodeJS.Timeout | null>(null);
 
   async function handleSendMessage() {
     if (!textInput.trim()) return;
@@ -143,6 +145,28 @@ export default function ChatPage() {
       socket?.off("user-stop-typing");
     };
   }, [myId, otherId, roomId]);
+
+  // Typing indicator emitter
+  useEffect(() => {
+    const socket = getSocket();
+
+    if (textInput.trim() !== "") {
+      socket?.emit("typing", { room: roomId, senderId: myId });
+
+      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+
+      typingTimeout.current = setTimeout(() => {
+        socket?.emit("stop-typing", { room: roomId, senderId: myId });
+      }, 1250);
+    } else {
+      socket?.emit("stop-typing", { room: roomId, senderId: myId });
+      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+    }
+
+    return () => {
+      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+    };
+  }, [myId, roomId, textInput]);
 
   if (isLoading) {
     return <Loading />;

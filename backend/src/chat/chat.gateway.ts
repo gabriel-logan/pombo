@@ -30,7 +30,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private readonly offlineMessages: Map<
     string,
-    Array<{ senderId: number; message: string; timestamp: Date }>
+    Array<{
+      senderId: number;
+      message: string;
+      timestamp: Date;
+    }>
   > = new Map();
 
   constructor(
@@ -167,10 +171,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage("send-message")
   handleMessage(
-    @MessageBody() data: { room: string; message: string },
+    @MessageBody() data: { room: string; message: string; clientMsgId: string },
     @ConnectedSocket() client: Socket,
   ): void {
-    const { room, message } = data;
+    const { room, message, clientMsgId } = data;
 
     const { sub: authenticatedClientId } = client.user!;
 
@@ -186,10 +190,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     const msgData = {
+      clientMsgId,
       message,
       senderId: parseInt(authenticatedClientId, 10),
       timestamp: new Date(),
-    };
+    } as const;
+
+    // Acknowledge to sender that message is sent
+    client.emit("message-status", {
+      clientMsgId,
+      status: "sent",
+    });
 
     const roomSockets = this.server.sockets.adapter.rooms.get(room);
     const connectedCount = roomSockets ? roomSockets.size : 0;
@@ -204,6 +215,28 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       this.offlineMessages.get(room)!.push(msgData);
     }
+  }
+
+  @SubscribeMessage("message-delivered")
+  handleMessageDelivered(@MessageBody() data: { clientMsgId: string }): void {
+    const { clientMsgId } = data;
+
+    // Notify sender that message is delivered
+    this.server.emit("message-status", {
+      clientMsgId,
+      status: "delivered",
+    });
+  }
+
+  @SubscribeMessage("message-read")
+  handleMessageRead(@MessageBody() data: { clientMsgId: string }): void {
+    const { clientMsgId } = data;
+
+    // Notify sender that message is read
+    this.server.emit("message-status", {
+      clientMsgId,
+      status: "read",
+    });
   }
 
   @SubscribeMessage("typing")

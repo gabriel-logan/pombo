@@ -93,7 +93,10 @@ export default function ChatPage() {
             const alreadyExists = prev.some(
               (msg) => msg.clientMsgId && msg.clientMsgId === data.clientMsgId,
             );
-            if (alreadyExists) return prev;
+
+            if (alreadyExists) {
+              return prev;
+            }
 
             const newMsg: Message = {
               id: Date.now(),

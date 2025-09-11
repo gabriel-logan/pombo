@@ -107,6 +107,28 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return { online: isOnline };
   }
 
+  @SubscribeMessage("get-room-status")
+  handleRoomStatus(
+    @MessageBody() room: string,
+    @ConnectedSocket() client: Socket,
+  ): { usersInRoom: number } {
+    const { sub: authenticatedClientId } = client.user!;
+
+    const isValidClientRoom = this.validateClientRoom(
+      authenticatedClientId,
+      room,
+    );
+
+    if (!isValidClientRoom) {
+      throw new WsException("You are not allowed to join this room");
+    }
+
+    const roomSockets = this.server.sockets.adapter.rooms.get(room);
+    const count = roomSockets ? roomSockets.size : 0;
+
+    return { usersInRoom: count };
+  }
+
   @Public()
   @SubscribeMessage("check-alive")
   handleAlive(): { status: boolean } {

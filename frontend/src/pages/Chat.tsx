@@ -53,20 +53,36 @@ export default function ChatPage() {
       const alertMsg =
         "The user is offline. You can't send messages because the message will not be delivered.";
       if (Platform.OS === "web") {
-        return alert(alertMsg);
+        alert(alertMsg);
       } else {
-        return Alert.alert("User Offline", alertMsg);
+        Alert.alert("User Offline", alertMsg);
       }
+
+      return;
     }
 
     const socket = getSocket();
 
-    socket?.emit("send-message", {
-      room: roomId,
-      message: text,
-    });
+    socket?.emit("get-room-status", roomId, (res: { usersInRoom: number }) => {
+      if (res.usersInRoom < 2) {
+        const alertMsg =
+          "Cannot send message: the other user is not in the chat.";
 
-    setTextInput("");
+        if (Platform.OS === "web") {
+          alert(alertMsg);
+        } else {
+          Alert.alert("Cannot send message", alertMsg);
+        }
+        return;
+      }
+
+      socket.emit("send-message", {
+        room: roomId,
+        message: text,
+      });
+
+      setTextInput("");
+    });
   }
 
   useEffect(() => {

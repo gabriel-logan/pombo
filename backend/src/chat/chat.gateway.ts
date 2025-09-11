@@ -28,6 +28,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private readonly usersOnline: Map<number, string> = new Map();
 
+  private readonly offlineMessages: Map<
+    string,
+    Array<{ senderId: number; message: string; timestamp: Date }>
+  > = new Map();
+
   constructor(
     private readonly configService: ConfigService<EnvSecretConfig, true>,
     private readonly jwtService: JwtService,
@@ -138,6 +143,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     await client.join(room);
+
+    // Send any offline messages to the user upon joining the room
+    const pendingMessages = this.offlineMessages.get(room) || [];
+
+    pendingMessages.forEach((msg) => {
+      client.emit("new-message", msg);
+    });
+
+    this.offlineMessages.delete(room);
   }
 
   @SubscribeMessage("leave-room")
@@ -179,10 +193,25 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
     }
 
-    this.server.to(room).emit("new-message", {
+    const msgData = {
       message,
       senderId: parseInt(authenticatedClientId, 10),
-    });
+      timestamp: new Date(),
+    };
+
+    const roomSockets = this.server.sockets.adapter.rooms.get(room);
+    const connectedCount = roomSockets ? roomSockets.size : 0;
+
+    if (connectedCount > 1) {
+      this.server.to(room).emit("new-message", msgData);
+    } else {
+      // Store the message for offline delivery
+      if (!this.offlineMessages.has(room)) {
+        this.offlineMessages.set(room, []);
+      }
+
+      this.offlineMessages.get(room)!.push(msgData);
+    }
   }
 
   @SubscribeMessage("typing")

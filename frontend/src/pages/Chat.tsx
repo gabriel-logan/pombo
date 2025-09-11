@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -45,6 +45,57 @@ export default function ChatPage() {
 
   const [typing, setTyping] = useState(false);
   const [status, setStatus] = useState<"online" | "offline">("offline");
+
+  const localVideoRef = useRef<any>(null);
+  const remoteVideoRef = useRef<any>(null);
+
+  async function startVideoCall() {
+    const socket = getSocket();
+    const pc = new RTCPeerConnection();
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+
+    localVideoRef.current.srcObject = stream;
+
+    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+
+    pc.ontrack = (event) => {
+      remoteVideoRef.current.srcObject = event.streams[0];
+    };
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket?.emit("rtc-ice-candidate", {
+          room: roomId,
+          candidate: event.candidate,
+        });
+      }
+    };
+
+    socket?.on("rtc-offer", async (offer: RTCSessionDescriptionInit) => {
+      await pc.setRemoteDescription(offer);
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      socket.emit("rtc-answer", { room: roomId, sdp: answer });
+    });
+
+    socket?.on("rtc-answer", async (answer: RTCSessionDescriptionInit) => {
+      await pc.setRemoteDescription(answer);
+    });
+
+    socket?.on("ice-candidate", (candidate: RTCIceCandidateInit) => {
+      pc.addIceCandidate(candidate);
+    });
+
+    const offer = await pc.createOffer();
+
+    await pc.setLocalDescription(offer);
+
+    socket?.emit("rtc-offer", { room: roomId, sdp: offer });
+  }
 
   function sendMessage(text: string) {
     if (text.trim() === "") return;
@@ -227,7 +278,12 @@ export default function ChatPage() {
                   "desktop-outline",
                 ] as (keyof typeof Ionicons.glyphMap)[]
               ).map((icon) => (
-                <TouchableOpacity key={icon}>
+                <TouchableOpacity
+                  key={icon}
+                  onPress={
+                    icon === "videocam-outline" ? startVideoCall : undefined
+                  }
+                >
                   <Ionicons name={icon} size={22} color="#4A90E2" />
                 </TouchableOpacity>
               ))}

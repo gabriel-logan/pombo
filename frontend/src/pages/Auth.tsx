@@ -1,35 +1,24 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 
 import signInWithGitHub from "../actions/signInWithGitHub";
 import BtnSignInWithGithub from "../components/BtnSignInWithGithub";
 import Loading from "../components/Loading";
 import useOAuthHandler from "../hooks/useOAuthHandler";
+import useRedirectLoggedInHandler from "../hooks/useRedirectLoggedInHandler";
 import { useAuthStore } from "../stores/authStore";
-import { RootNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
 
-type AuthPageProps = RootNativeStackScreenProps<"AuthPage">;
-
 export default function AuthPage() {
-  const { isLoggedIn, signIn, signOut } = useAuthStore((state) => state);
-
-  const navigation = useNavigation<AuthPageProps["navigation"]>();
+  const { signIn, signOut } = useAuthStore((state) => state);
 
   const [isLoading, setIsLoading] = useState(true);
 
+  // If already logged in, redirect to the main app
+  useRedirectLoggedInHandler({ setIsLoading });
+
   // Handle OAuth Sign-In flow
   useOAuthHandler(signIn, signOut, setIsLoading);
-
-  // If already logged in, redirect to the main app
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigation.reset({ index: 0, routes: [{ name: "RootDrawerNavigator" }] });
-    } else {
-      setIsLoading(false);
-    }
-  }, [isLoggedIn, navigation]);
 
   if (isLoading) {
     return <Loading />;

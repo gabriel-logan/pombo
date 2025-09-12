@@ -24,7 +24,7 @@ export default function App() {
     <NavigationContainer>
       <StatusBar style="auto" />
       <RootNativeStackNavigator />
-      <TextServerIsAlive />
+      <TextServerIsAlive setIsLoading={setIsLoading} />
     </NavigationContainer>
   );
 }

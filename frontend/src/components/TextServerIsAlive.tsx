@@ -5,11 +5,19 @@ import { Octicons } from "@expo/vector-icons";
 import { getSocket } from "../lib/socketInstance";
 import colors from "../utils/colors";
 
-export default function TextServerIsAlive() {
+interface TextServerIsAliveProps {
+  setIsLoading: (isLoading: boolean) => void;
+}
+
+export default function TextServerIsAlive({
+  setIsLoading,
+}: Readonly<TextServerIsAliveProps>) {
   const [serverIsAlive, setServerIsAlive] = useState(false);
 
   useEffect(() => {
     function checkServerAlive() {
+      setIsLoading(true);
+
       const socket = getSocket();
 
       if (!socket) return;
@@ -20,6 +28,8 @@ export default function TextServerIsAlive() {
 
       if (socket.disconnected) {
         setServerIsAlive(false);
+      } else {
+        setIsLoading(false);
       }
     }
 
@@ -27,7 +37,7 @@ export default function TextServerIsAlive() {
     const interval = setInterval(checkServerAlive, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [setIsLoading]);
   return (
     <View style={styles.container}>
       <Octicons

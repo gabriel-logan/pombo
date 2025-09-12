@@ -17,7 +17,7 @@ export interface Message {
 
 export async function initDB() {
   if (Platform.OS === "web") {
-    return new Promise<void>((resolve, reject) => {
+    return await new Promise<void>((resolve, reject) => {
       const request = window.indexedDB.open(chatDBKey, 1);
 
       request.onupgradeneeded = (event) => {
@@ -42,6 +42,7 @@ export async function initDB() {
     });
   } else {
     db = await SQLite.openDatabaseAsync(chatDBKey);
+
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,16 +65,19 @@ export async function saveMessage(
   if (Platform.OS === "web") {
     if (!idb) throw new Error("IndexedDB not initialized");
 
-    return new Promise<void>((resolve, reject) => {
+    return await new Promise<void>((resolve, reject) => {
       const tx = idb!.transaction("messages", "readwrite");
+
       tx.objectStore("messages").add({ roomId, text, sender, createdAt });
 
       tx.oncomplete = () => resolve();
+
       tx.onerror = () =>
         reject(new Error(tx.error?.message || "Failed to save message"));
     });
   } else {
     if (!db) throw new Error("SQLite not initialized");
+
     await db.runAsync(
       "INSERT INTO messages (roomId, text, sender, createdAt) VALUES (?, ?, ?, ?)",
       [roomId, text, sender, createdAt],
@@ -85,7 +89,7 @@ export async function loadMessages(roomId: string): Promise<Message[]> {
   if (Platform.OS === "web") {
     if (!idb) throw new Error("IndexedDB not initialized");
 
-    return new Promise<Message[]>((resolve, reject) => {
+    return await new Promise<Message[]>((resolve, reject) => {
       const tx = idb!.transaction("messages", "readonly");
       const index = tx.objectStore("messages").index("roomId");
       const request = index.getAll(roomId);
@@ -93,12 +97,14 @@ export async function loadMessages(roomId: string): Promise<Message[]> {
       request.onsuccess = () => {
         resolve(request.result as Message[]);
       };
+
       request.onerror = () => {
         reject(new Error(request.error?.message || "Failed to load messages"));
       };
     });
   } else {
     if (!db) throw new Error("SQLite not initialized");
+
     return (
       (await db.getAllAsync<Message>(
         "SELECT * FROM messages WHERE roomId = ? ORDER BY createdAt ASC",

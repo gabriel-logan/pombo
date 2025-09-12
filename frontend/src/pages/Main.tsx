@@ -10,39 +10,28 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
-import { Octicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 import { useAuthStore } from "../stores/authStore";
-import { useUserStore } from "../stores/userStore";
 import { RootDrawerScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
 
 type MainPageProps = RootDrawerScreenProps<"MainPage">;
 
-type FilterType = "all" | "online" | "offline";
-
 export default function MainPage() {
   const { user } = useAuthStore((state) => state);
-  const { isOnline } = useUserStore((state) => state);
 
   const navigation = useNavigation<MainPageProps["navigation"]>();
 
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<FilterType>("all");
 
   const filteredUsers = useMemo(() => {
     if (!user?.following.info) return [];
 
-    return user.following.info
-      .filter((u) => u.login.toLowerCase().includes(search.toLowerCase()))
-      .filter((u) => {
-        const status = isOnline.find((s) => s.userId === u.id)?.status || false;
-        if (filter === "online") return status;
-        if (filter === "offline") return !status;
-        return true;
-      });
-  }, [filter, isOnline, search, user?.following.info]);
+    return user.following.info.filter((u) =>
+      u.login.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [search, user?.following.info]);
 
   return (
     <SafeAreaView
@@ -62,43 +51,6 @@ export default function MainPage() {
         />
       </View>
 
-      {/* Filtros */}
-      <View style={styles.filterContainer}>
-        {(["all", "online", "offline"] as const).map((f) => (
-          <TouchableOpacity
-            key={f}
-            style={[
-              styles.filterButton,
-              filter === f && styles.filterButtonActive,
-            ]}
-            onPress={() => setFilter(f as typeof filter)}
-          >
-            {(() => {
-              let label: string;
-
-              if (f === "all") {
-                label = "All";
-              } else if (f === "online") {
-                label = "Online";
-              } else {
-                label = "Offline";
-              }
-
-              return (
-                <Text
-                  style={[
-                    styles.filterText,
-                    filter === f && styles.filterTextActive,
-                  ]}
-                >
-                  {label}
-                </Text>
-              );
-            })()}
-          </TouchableOpacity>
-        ))}
-      </View>
-
       {/* Lista de usuários */}
       <FlatList
         data={filteredUsers}
@@ -107,11 +59,6 @@ export default function MainPage() {
           <Text style={styles.emptyText}>Nenhum usuário encontrado</Text>
         }
         renderItem={({ item }) => {
-          const userStatus = isOnline.find((u) => u.userId === item.id);
-          const statusColor = userStatus?.status
-            ? colors.light.statusSuccess
-            : colors.light.statusError;
-
           return (
             <TouchableOpacity
               style={styles.chatItem}
@@ -128,13 +75,6 @@ export default function MainPage() {
               <View style={styles.textContainer}>
                 <Text style={styles.name}>{item.login}</Text>
                 <Text style={styles.lastMessage}>{item.url}</Text>
-                <View style={styles.statusView}>
-                  <Text style={styles.status}>Status:</Text>
-                  <Text style={styles.status}>
-                    {userStatus?.status ? "Online" : "Offline"}
-                  </Text>
-                  <Octicons name="dot-fill" size={16} color={statusColor} />
-                </View>
               </View>
             </TouchableOpacity>
           );
@@ -236,17 +176,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.light.textSecondary,
     marginTop: 2,
-  },
-
-  statusView: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 2,
-  },
-
-  status: {
-    fontSize: 12,
-    color: colors.light.textSecondary,
-    marginTop: 4,
   },
 });

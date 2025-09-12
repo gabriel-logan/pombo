@@ -113,3 +113,51 @@ export async function loadMessages(roomId: string): Promise<Message[]> {
     );
   }
 }
+
+export async function deleteMessage(messageId: number) {
+  if (Platform.OS === "web") {
+    if (!idb) throw new Error("IndexedDB not initialized");
+
+    return await new Promise<void>((resolve, reject) => {
+      const tx = idb!.transaction("messages", "readwrite");
+
+      tx.objectStore("messages").delete(messageId);
+
+      tx.oncomplete = () => resolve();
+
+      tx.onerror = () =>
+        reject(new Error(tx.error?.message || "Failed to delete message"));
+    });
+  } else {
+    if (!db) throw new Error("SQLite not initialized");
+
+    await db.runAsync("DELETE FROM messages WHERE id = ?", [messageId]);
+  }
+}
+
+export async function deleteChat(roomId: string) {
+  if (Platform.OS === "web") {
+    if (!idb) throw new Error("IndexedDB not initialized");
+
+    return await new Promise<void>((resolve, reject) => {
+      const tx = idb!.transaction("messages", "readwrite");
+      const store = tx.objectStore("messages");
+      const index = store.index("roomId");
+      const request = index.getAllKeys(roomId);
+
+      request.onsuccess = () => {
+        const keys = request.result;
+        keys.forEach((key) => store.delete(key));
+      };
+
+      tx.oncomplete = () => resolve();
+
+      tx.onerror = () =>
+        reject(new Error(tx.error?.message || "Failed to delete chat"));
+    });
+  } else {
+    if (!db) throw new Error("SQLite not initialized");
+
+    await db.runAsync("DELETE FROM messages WHERE roomId = ?", [roomId]);
+  }
+}

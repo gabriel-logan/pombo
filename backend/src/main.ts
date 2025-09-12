@@ -2,6 +2,7 @@ import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import type { NestExpressApplication } from "@nestjs/platform-express";
+import helmet from "helmet";
 
 import { AppModule } from "./app.module";
 import type { EnvGlobalConfig } from "./configs/types";
@@ -18,6 +19,8 @@ async function bootstrap(): Promise<void> {
     configService.get<EnvGlobalConfig["server"]>("server");
 
   if (nodeEnv === "production") {
+    app.use(helmet());
+
     app.set("trust proxy", true);
   }
 

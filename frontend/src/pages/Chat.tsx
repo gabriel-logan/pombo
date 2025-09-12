@@ -18,6 +18,7 @@ import { useRoute } from "@react-navigation/native";
 import BtnGoBack from "../components/BtnGoBack";
 import Loading from "../components/Loading";
 import {
+  deleteChat,
   deleteMessage,
   initDB,
   loadMessages,
@@ -248,6 +249,39 @@ export default function ChatPage() {
                 <Ionicons name={icon} size={22} color="#4A90E2" />
               </TouchableOpacity>
             ))}
+
+            <View style={styles.iconsRight}>
+              <TouchableOpacity
+                onPress={() => {
+                  if (Platform.OS === "web") {
+                    if (confirm("Do you want to delete ALL messages?")) {
+                      deleteChat(roomId).then(() => {
+                        setMessages([]);
+                      });
+                    }
+                  } else {
+                    Alert.alert(
+                      "Excluir chat",
+                      "Deseja apagar TODAS as mensagens?",
+                      [
+                        { text: "Cancelar", style: "cancel" },
+                        {
+                          text: "Apagar tudo",
+                          style: "destructive",
+                          onPress: () => {
+                            deleteChat(roomId).then(() => {
+                              setMessages([]);
+                            });
+                          },
+                        },
+                      ],
+                    );
+                  }
+                }}
+              >
+                <Ionicons name="trash-outline" size={22} color="red" />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 

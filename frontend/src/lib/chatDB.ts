@@ -1,5 +1,11 @@
 import { Platform } from "react-native";
-import * as SQLite from "expo-sqlite";
+
+let SQLite: typeof import("expo-sqlite") | null = null;
+
+if (Platform.OS !== "web") {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  SQLite = require("expo-sqlite");
+}
 
 const chatDBKey = "chat-db";
 

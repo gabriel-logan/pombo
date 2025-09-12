@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import * as Linking from "expo-linking";
@@ -6,10 +5,11 @@ import { useNavigation } from "@react-navigation/native";
 
 import Loading from "../components/Loading";
 import { useAuthStore } from "../stores/authStore";
+import { useUserStore } from "../stores/userStore";
 import colors from "../utils/colors";
 
 export default function ProfilePage() {
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, setIsLoading } = useUserStore((state) => state);
 
   const { signOut, user } = useAuthStore((state) => state);
 

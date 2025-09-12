@@ -28,9 +28,9 @@ export default function TextServerIsAlive({
 
       if (socket.disconnected) {
         setServerIsAlive(false);
-      } else {
-        setIsLoading(false);
       }
+
+      setIsLoading(false);
     }
 
     checkServerAlive();

@@ -20,6 +20,8 @@ import colors from "../utils/colors";
 
 type MainPageProps = RootDrawerScreenProps<"MainPage">;
 
+type FilterType = "all" | "online" | "offline";
+
 export default function MainPage() {
   const { user } = useAuthStore((state) => state);
   const { isOnline } = useUserStore((state) => state);
@@ -27,7 +29,7 @@ export default function MainPage() {
   const navigation = useNavigation<MainPageProps["navigation"]>();
 
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "online" | "offline">("all");
+  const [filter, setFilter] = useState<FilterType>("all");
 
   const filteredUsers = useMemo(() => {
     if (!user?.following.info) return [];
@@ -62,7 +64,7 @@ export default function MainPage() {
 
       {/* Filtros */}
       <View style={styles.filterContainer}>
-        {["all", "online", "offline"].map((f) => (
+        {(["all", "online", "offline"] as const).map((f) => (
           <TouchableOpacity
             key={f}
             style={[
@@ -71,14 +73,28 @@ export default function MainPage() {
             ]}
             onPress={() => setFilter(f as typeof filter)}
           >
-            <Text
-              style={[
-                styles.filterText,
-                filter === f && styles.filterTextActive,
-              ]}
-            >
-              {f === "all" ? "Todos" : f === "online" ? "Online" : "Offline"}
-            </Text>
+            {(() => {
+              let label: string;
+
+              if (f === "all") {
+                label = "All";
+              } else if (f === "online") {
+                label = "Online";
+              } else {
+                label = "Offline";
+              }
+
+              return (
+                <Text
+                  style={[
+                    styles.filterText,
+                    filter === f && styles.filterTextActive,
+                  ]}
+                >
+                  {label}
+                </Text>
+              );
+            })()}
           </TouchableOpacity>
         ))}
       </View>

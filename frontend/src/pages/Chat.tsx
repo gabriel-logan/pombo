@@ -17,7 +17,13 @@ import { useRoute } from "@react-navigation/native";
 
 import BtnGoBack from "../components/BtnGoBack";
 import Loading from "../components/Loading";
-import { initDB, loadMessages, Message, saveMessage } from "../lib/chatDB";
+import {
+  deleteMessage,
+  initDB,
+  loadMessages,
+  Message,
+  saveMessage,
+} from "../lib/chatDB";
 import { getSocket } from "../lib/socketInstance";
 import { RootNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
@@ -259,21 +265,54 @@ export default function ChatPage() {
             <Text style={styles.noMessage}>No messages found.</Text>
           }
           renderItem={({ item }) => (
-            <View
-              style={[
-                styles.message,
-                item.sender === "me" ? styles.myMessage : styles.otherMessage,
-              ]}
+            <TouchableOpacity
+              onLongPress={() => {
+                if (Platform.OS === "web") {
+                  if (confirm("Do you want to delete this message?")) {
+                    deleteMessage(item.id).then(() => {
+                      setMessages((prev) =>
+                        prev.filter((msg) => msg.id !== item.id),
+                      );
+                    });
+                  }
+                } else {
+                  Alert.alert(
+                    "Delete Message",
+                    "Do you want to delete this message?",
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      {
+                        text: "Delete",
+                        style: "destructive",
+                        onPress: () => {
+                          deleteMessage(item.id).then(() => {
+                            setMessages((prev) =>
+                              prev.filter((msg) => msg.id !== item.id),
+                            );
+                          });
+                        },
+                      },
+                    ],
+                  );
+                }
+              }}
             >
-              <Text
+              <View
                 style={[
-                  styles.messageText,
-                  item.sender === "me" && { color: "#fff" },
+                  styles.message,
+                  item.sender === "me" ? styles.myMessage : styles.otherMessage,
                 ]}
               >
-                {item.text}
-              </Text>
-            </View>
+                <Text
+                  style={[
+                    styles.messageText,
+                    item.sender === "me" && { color: "#fff" },
+                  ]}
+                >
+                  {item.text}
+                </Text>
+              </View>
+            </TouchableOpacity>
           )}
         />
 

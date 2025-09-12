@@ -27,13 +27,20 @@ export default function MainPage() {
   const navigation = useNavigation<MainPageProps["navigation"]>();
 
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all" | "online" | "offline">("all");
 
   const filteredUsers = useMemo(() => {
     if (!user?.following.info) return [];
-    return user.following.info.filter((u) =>
-      u.login.toLowerCase().includes(search.toLowerCase()),
-    );
-  }, [search, user?.following.info]);
+
+    return user.following.info
+      .filter((u) => u.login.toLowerCase().includes(search.toLowerCase()))
+      .filter((u) => {
+        const status = isOnline.find((s) => s.userId === u.id)?.status || false;
+        if (filter === "online") return status;
+        if (filter === "offline") return !status;
+        return true;
+      });
+  }, [filter, isOnline, search, user?.following.info]);
 
   return (
     <SafeAreaView
@@ -42,21 +49,46 @@ export default function MainPage() {
         Platform.OS === "android" ? ["bottom", "left", "right"] : undefined
       }
     >
+      {/* Input de busca */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="🔍 Search user..."
+          placeholder="🔍 Buscar usuário..."
           placeholderTextColor={colors.light.textSecondary}
           value={search}
           onChangeText={setSearch}
         />
       </View>
 
+      {/* Filtros */}
+      <View style={styles.filterContainer}>
+        {["all", "online", "offline"].map((f) => (
+          <TouchableOpacity
+            key={f}
+            style={[
+              styles.filterButton,
+              filter === f && styles.filterButtonActive,
+            ]}
+            onPress={() => setFilter(f as typeof filter)}
+          >
+            <Text
+              style={[
+                styles.filterText,
+                filter === f && styles.filterTextActive,
+              ]}
+            >
+              {f === "all" ? "Todos" : f === "online" ? "Online" : "Offline"}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Lista de usuários */}
       <FlatList
         data={filteredUsers}
         keyExtractor={(item) => item.id.toString()}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No followings found</Text>
+          <Text style={styles.emptyText}>Nenhum usuário encontrado</Text>
         }
         renderItem={({ item }) => {
           const userStatus = isOnline.find((u) => u.userId === item.id);
@@ -120,6 +152,37 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 2,
+  },
+
+  filterContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingVertical: 8,
+    backgroundColor: colors.light.backgroundCard,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.light.borderLight,
+    gap: 10,
+  },
+
+  filterButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    backgroundColor: colors.light.backgroundInput,
+  },
+
+  filterButtonActive: {
+    backgroundColor: colors.light.brandPrimary,
+  },
+
+  filterText: {
+    fontSize: 14,
+    color: colors.light.textSecondary,
+  },
+
+  filterTextActive: {
+    color: "#fff",
+    fontWeight: "600",
   },
 
   emptyText: {

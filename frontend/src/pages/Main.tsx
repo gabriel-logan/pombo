@@ -1,8 +1,10 @@
+import { useMemo, useState } from "react";
 import {
   FlatList,
   Platform,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -18,8 +20,16 @@ type MainPageProps = RootDrawerScreenProps<"MainPage">;
 
 export default function MainPage() {
   const { user } = useAuthStore((state) => state);
-
   const navigation = useNavigation<MainPageProps["navigation"]>();
+
+  const [search, setSearch] = useState("");
+
+  const filteredUsers = useMemo(() => {
+    if (!user?.following.info) return [];
+    return user.following.info.filter((u) =>
+      u.login.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [search, user?.following.info]);
 
   return (
     <SafeAreaView
@@ -28,8 +38,18 @@ export default function MainPage() {
         Platform.OS === "android" ? ["bottom", "left", "right"] : undefined
       }
     >
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="🔍 Search user..."
+          placeholderTextColor={colors.light.textSecondary}
+          value={search}
+          onChangeText={setSearch}
+        />
+      </View>
+
       <FlatList
-        data={user?.following.info}
+        data={filteredUsers}
         keyExtractor={(item) => item.id.toString()}
         ListEmptyComponent={
           <Text style={styles.emptyText}>No followings found</Text>
@@ -62,6 +82,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.light.backgroundCard,
+  },
+
+  searchContainer: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.light.borderLight,
+    backgroundColor: colors.light.backgroundInput,
+  },
+
+  searchInput: {
+    height: 40,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    backgroundColor: "#fff",
+    fontSize: 15,
+    color: colors.light.textMain,
+    elevation: 2, // leve sombra no Android
+    shadowColor: "#000", // leve sombra no iOS
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
 
   emptyText: {

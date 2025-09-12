@@ -1,21 +1,21 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
 
 interface UserState {
-  bearerToken: string | null;
-  setBearerToken: (token: string) => void;
+  isOnline: {
+    userId: number | null;
+    status: boolean;
+  }[];
+
+  setIsOnline: (userId: number, status: boolean) => void;
 }
 
-export const useUserStore = create<UserState>()(
-  persist(
-    (set) => ({
-      bearerToken: null,
-      setBearerToken: (token: string) => set({ bearerToken: token }),
-    }),
-    {
-      name: "auth-storage",
-      storage: createJSONStorage(() => AsyncStorage),
-    },
-  ),
-);
+export const useUserStore = create<UserState>((set) => ({
+  isOnline: [],
+
+  setIsOnline: (userId, status) =>
+    set((state) => ({
+      isOnline: state.isOnline
+        .filter((u) => u.userId !== userId)
+        .concat({ userId, status }),
+    })),
+}));

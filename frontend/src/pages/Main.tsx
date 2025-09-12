@@ -10,9 +10,11 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
+import { Octicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 import { useAuthStore } from "../stores/authStore";
+import { useUserStore } from "../stores/userStore";
 import { RootDrawerScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
 
@@ -20,6 +22,8 @@ type MainPageProps = RootDrawerScreenProps<"MainPage">;
 
 export default function MainPage() {
   const { user } = useAuthStore((state) => state);
+  const { isOnline } = useUserStore((state) => state);
+
   const navigation = useNavigation<MainPageProps["navigation"]>();
 
   const [search, setSearch] = useState("");
@@ -54,25 +58,39 @@ export default function MainPage() {
         ListEmptyComponent={
           <Text style={styles.emptyText}>No followings found</Text>
         }
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.chatItem}
-            onPress={() =>
-              navigation.navigate("ChatPage", {
-                myId: user!.id,
-                otherId: item.id,
-                otherAvatarUrl: item.avatar_url,
-                otherUsername: item.login,
-              })
-            }
-          >
-            <Image source={{ uri: item.avatar_url }} style={styles.avatar} />
-            <View style={styles.textContainer}>
-              <Text style={styles.name}>{item.login}</Text>
-              <Text style={styles.lastMessage}>{item.url}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
+        renderItem={({ item }) => {
+          const userStatus = isOnline.find((u) => u.userId === item.id);
+          const statusColor = userStatus?.status
+            ? colors.light.statusSuccess
+            : colors.light.statusError;
+
+          return (
+            <TouchableOpacity
+              style={styles.chatItem}
+              onPress={() =>
+                navigation.navigate("ChatPage", {
+                  myId: user!.id,
+                  otherId: item.id,
+                  otherAvatarUrl: item.avatar_url,
+                  otherUsername: item.login,
+                })
+              }
+            >
+              <Image source={{ uri: item.avatar_url }} style={styles.avatar} />
+              <View style={styles.textContainer}>
+                <Text style={styles.name}>{item.login}</Text>
+                <Text style={styles.lastMessage}>{item.url}</Text>
+                <View style={styles.statusView}>
+                  <Text style={styles.status}>Status:</Text>
+                  <Text style={styles.status}>
+                    {userStatus?.status ? "Online" : "Offline"}
+                  </Text>
+                  <Octicons name="dot-fill" size={16} color={statusColor} />
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        }}
       />
     </SafeAreaView>
   );
@@ -98,8 +116,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     fontSize: 15,
     color: colors.light.textMain,
-    elevation: 2, // leve sombra no Android
-    shadowColor: "#000", // leve sombra no iOS
+    elevation: 2,
+    shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 2,
   },
@@ -139,5 +157,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.light.textSecondary,
     marginTop: 2,
+  },
+
+  statusView: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+  },
+
+  status: {
+    fontSize: 12,
+    color: colors.light.textSecondary,
+    marginTop: 4,
   },
 });

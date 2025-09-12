@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Octicons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 
 import BtnGoBack from "../components/BtnGoBack";
@@ -26,6 +26,7 @@ import {
   saveMessage,
 } from "../lib/chatDB";
 import { getSocket } from "../lib/socketInstance";
+import { useUserStore } from "../stores/userStore";
 import { RootNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
 
@@ -36,7 +37,10 @@ function getRoomId(userId1: number, userId2: number) {
 }
 
 export default function ChatPage() {
+  const { isOnline, setIsOnline } = useUserStore((state) => state);
+
   const { params } = useRoute<ChatPageProps["route"]>();
+
   const { myId, otherId, otherAvatarUrl, otherUsername } = params;
 
   const roomId = getRoomId(myId, otherId);
@@ -44,7 +48,6 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [textInput, setTextInput] = useState("");
-  const [status, setStatus] = useState<"online" | "offline">("offline");
   const [typing, setTyping] = useState(false);
 
   // With debounce - typing indicator
@@ -134,13 +137,13 @@ export default function ChatPage() {
         // Status online/offline
         socket?.on("user-online", ({ userId }) => {
           if (userId === otherId) {
-            setStatus("online");
+            setIsOnline(userId, true);
           }
         });
 
         socket?.on("user-offline", ({ userId }) => {
           if (userId === otherId) {
-            setStatus("offline");
+            setIsOnline(userId, false);
           }
         });
 
@@ -161,7 +164,7 @@ export default function ChatPage() {
           "check-online-status",
           otherId,
           (res: { online: boolean }) => {
-            setStatus(res.online ? "online" : "offline");
+            setIsOnline(otherId, res.online);
           },
         );
       } finally {
@@ -179,7 +182,7 @@ export default function ChatPage() {
       socket?.off("user-typing");
       socket?.off("user-stop-typing");
     };
-  }, [myId, otherId, roomId]);
+  }, [myId, otherId, roomId, setIsOnline]);
 
   // Typing indicator emitter
   useEffect(() => {
@@ -233,7 +236,21 @@ export default function ChatPage() {
             <Image source={{ uri: otherAvatarUrl }} style={styles.avatar} />
             <View>
               <Text style={styles.username}>{otherUsername}</Text>
-              <Text style={styles.status}>Status: {status}</Text>
+              <Text style={styles.status}>
+                Status:{" "}
+                <Octicons
+                  name="dot-fill"
+                  size={16}
+                  color={
+                    isOnline.find((u) => u.userId === otherId && u.status)
+                      ? colors.light.statusSuccess
+                      : colors.light.statusError
+                  }
+                />{" "}
+                {isOnline.find((u) => u.userId === otherId && u.status)
+                  ? "Online"
+                  : "Offline"}
+              </Text>
             </View>
           </View>
 

@@ -18,7 +18,7 @@ export default function App() {
   const [restoring, setRestoring] = useState(true);
 
   const { isChecking: checkingServer } = useServerHealth(10000);
-  useSocketHealth();
+  useSocketHealth(3000);
 
   useEffect(() => {
     restoreSession().finally(() => setRestoring(false));

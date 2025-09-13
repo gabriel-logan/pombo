@@ -1,4 +1,3 @@
-import type { Dispatch } from "react";
 import { create } from "zustand";
 
 interface UserState {
@@ -12,8 +11,8 @@ interface UserState {
 
   setIsOnline: (userId: number, status: boolean) => void;
   setIsLoading: (loading: boolean) => void;
-  setSocketIsAlive: Dispatch<React.SetStateAction<boolean>>;
-  setServerIsAlive: Dispatch<React.SetStateAction<boolean>>;
+  setSocketIsAlive: (alive: boolean) => void;
+  setServerIsAlive: (alive: boolean) => void;
 }
 
 export const useUserStore = create<UserState>((set) => ({
@@ -29,18 +28,6 @@ export const useUserStore = create<UserState>((set) => ({
         .concat({ userId, status }),
     })),
   setIsLoading: (loading) => set({ isLoading: loading }),
-  setSocketIsAlive: (callback) =>
-    set((state) => ({
-      socketIsAlive:
-        typeof callback === "function"
-          ? callback(state.socketIsAlive)
-          : callback,
-    })),
-  setServerIsAlive: (callback) =>
-    set((state) => ({
-      serverIsAlive:
-        typeof callback === "function"
-          ? callback(state.serverIsAlive)
-          : callback,
-    })),
+  setSocketIsAlive: (alive) => set({ socketIsAlive: alive }),
+  setServerIsAlive: (alive) => set({ serverIsAlive: alive }),
 }));

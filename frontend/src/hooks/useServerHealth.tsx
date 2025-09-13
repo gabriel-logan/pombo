@@ -1,43 +1,35 @@
 import { useEffect, useState } from "react";
 
 import apiInstance from "../lib/apiInstance";
-import { getSocket } from "../lib/socketInstance";
 import { useUserStore } from "../stores/userStore";
 
-export function useServerHealth(intervalMs = 5000) {
-  const { setServerIsAlive, setSocketIsAlive } = useUserStore();
-
+export function useServerHealth(intervalMs = 10000) {
+  const setServerIsAlive = useUserStore((s) => s.setServerIsAlive);
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    async function checkServerAlive() {
+    let cancelled = false;
+
+    async function check() {
       setIsChecking(true);
-
       try {
-        const response = await apiInstance.get("/");
-        setServerIsAlive(response.status === 200);
+        const res = await apiInstance.get("/");
+        if (!cancelled) setServerIsAlive(res.status === 200);
       } catch {
-        setServerIsAlive(false);
+        if (!cancelled) setServerIsAlive(false);
       }
-
-      const socket = getSocket();
-
-      if (socket) {
-        socket.emit("check-alive", (data: { status: boolean }) => {
-          setSocketIsAlive(data.status);
-        });
-
-        if (socket.disconnected) setSocketIsAlive(false);
-      }
-
-      setIsChecking(false);
+      if (!cancelled) setIsChecking(false);
     }
 
-    checkServerAlive();
-    const id = setInterval(checkServerAlive, intervalMs);
+    check();
 
-    return () => clearInterval(id);
-  }, [intervalMs, setServerIsAlive, setSocketIsAlive]);
+    const id = setInterval(check, intervalMs);
+
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [intervalMs, setServerIsAlive]);
 
   return { isChecking };
 }

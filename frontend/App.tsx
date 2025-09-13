@@ -11,34 +11,42 @@ import { useAuthStore } from "./src/stores/authStore";
 import { useUserStore } from "./src/stores/userStore";
 import colors from "./src/utils/colors";
 
+interface ServerAwaitingProps {
+  restoring: boolean;
+}
+
+function ServerAwaiting({ restoring }: Readonly<ServerAwaitingProps>) {
+  return (
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <ActivityIndicator size="large" color="#0099ff" />
+      <Text style={{ marginTop: 26, color: colors.light.textMain }}>
+        {(() => {
+          if (restoring) {
+            return "Restoring session...";
+          } else {
+            return "Server is down. Trying to reconnect... Please wait.";
+          }
+        })()}
+      </Text>
+    </View>
+  );
+}
+
 export default function App() {
   const { serverIsAlive } = useUserStore();
   const { restoreSession } = useAuthStore();
 
   const [restoring, setRestoring] = useState(true);
 
-  const { isChecking: checkingServer } = useServerHealth(10000);
+  useServerHealth(10000);
   useSocketHealth(3000);
 
   useEffect(() => {
     restoreSession().finally(() => setRestoring(false));
   }, [restoreSession]);
 
-  if (restoring || (!serverIsAlive && checkingServer)) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#0099ff" />
-        <Text style={{ marginTop: 26, color: colors.light.textMain }}>
-          {(() => {
-            if (restoring) {
-              return "Restoring session...";
-            } else {
-              return "Server is down. Trying to reconnect... Please wait.";
-            }
-          })()}
-        </Text>
-      </View>
-    );
+  if (restoring || !serverIsAlive) {
+    return <ServerAwaiting restoring={restoring} />;
   }
 
   return (

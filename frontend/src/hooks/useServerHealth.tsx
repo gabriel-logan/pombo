@@ -1,19 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import apiInstance from "../lib/apiInstance";
 import { useUserStore } from "../stores/userStore";
 
 export function useServerHealth(intervalMs = 10000) {
-  const setServerIsAlive = useUserStore((s) => s.setServerIsAlive);
-
-  const [isChecking, setIsChecking] = useState(true);
+  const { setServerIsAlive } = useUserStore();
 
   useEffect(() => {
     let cancelled = false;
 
-    async function check() {
-      setIsChecking(true);
-
+    async function checkServerAlive() {
       try {
         const res = await apiInstance.get("/");
 
@@ -25,21 +21,14 @@ export function useServerHealth(intervalMs = 10000) {
           setServerIsAlive(false);
         }
       }
-
-      if (!cancelled) {
-        setIsChecking(false);
-      }
     }
 
-    check();
-
-    const id = setInterval(check, intervalMs);
+    checkServerAlive();
+    const interval = setInterval(checkServerAlive, intervalMs);
 
     return () => {
       cancelled = true;
-      clearInterval(id);
+      clearInterval(interval);
     };
   }, [intervalMs, setServerIsAlive]);
-
-  return { isChecking };
 }

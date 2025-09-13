@@ -4,10 +4,10 @@ import { getSocket } from "../lib/socketInstance";
 import { useUserStore } from "../stores/userStore";
 
 export function useSocketHealth(intervalMs = 5000) {
-  const setSocketIsAlive = useUserStore((s) => s.setSocketIsAlive);
+  const { setSocketIsAlive } = useUserStore();
 
   useEffect(() => {
-    function checkServerAlive() {
+    function checkSocketAlive() {
       const socket = getSocket();
 
       if (!socket) return;
@@ -21,8 +21,8 @@ export function useSocketHealth(intervalMs = 5000) {
       }
     }
 
-    checkServerAlive();
-    const interval = setInterval(checkServerAlive, intervalMs);
+    checkSocketAlive();
+    const interval = setInterval(checkSocketAlive, intervalMs);
 
     return () => clearInterval(interval);
   }, [intervalMs, setSocketIsAlive]);

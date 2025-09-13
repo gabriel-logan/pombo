@@ -120,28 +120,29 @@ export default function ChatPage() {
 
         // New message listener
         socket?.on("new-message", async (data) => {
-          // Verifica duplicata de forma síncrona com estado atual
-          const alreadyExists = messages.some(
-            (msg) => msg.clientMsgId && msg.clientMsgId === data.clientMsgId,
-          );
+          setMessages((prev) => {
+            // Prevent duplicate messages using clientMsgId
+            const alreadyExists = prev.some(
+              (msg) => msg.clientMsgId && msg.clientMsgId === data.clientMsgId,
+            );
 
-          if (alreadyExists) {
-            return;
-          }
+            if (alreadyExists) {
+              return prev;
+            }
 
-          const newMsg: MessageWithoutID = {
-            roomId,
-            text: data.message,
-            sender: data.senderId === myId ? "me" : "other",
-            createdAt: data.timestamp,
-            clientMsgId: data.clientMsgId,
-          };
+            const newMsg: MessageWithoutID = {
+              roomId,
+              text: data.message,
+              sender: data.senderId === myId ? "me" : "other",
+              createdAt: data.timestamp,
+              clientMsgId: data.clientMsgId,
+            };
 
-          // Salva no banco (await fora do setState)
-          const savedMsg = await saveMessage(newMsg);
+            // salva no banco também
+            saveMessage(newMsg);
 
-          // Atualiza estado síncrono
-          setMessages((prev) => [...prev, savedMsg]);
+            return [...prev, { id: -1, ...newMsg }];
+          });
         });
 
         // Status online/offline
@@ -192,7 +193,7 @@ export default function ChatPage() {
       socket?.off("user-typing");
       socket?.off("user-stop-typing");
     };
-  }, [messages, myId, otherId, roomId, setIsOnline]);
+  }, [myId, otherId, roomId, setIsOnline]);
 
   // Typing indicator emitter
   useEffect(() => {

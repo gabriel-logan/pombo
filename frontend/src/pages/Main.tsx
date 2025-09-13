@@ -26,11 +26,13 @@ export default function MainPage() {
   const [search, setSearch] = useState("");
 
   const filteredUsers = useMemo(() => {
-    if (!user?.following.info) return [];
+    const following = user?.following.info || [];
 
-    return user.following.info.filter((u) =>
+    const filtered = following.filter((u) =>
       u.login.toLowerCase().includes(search.toLowerCase()),
     );
+
+    return filtered;
   }, [search, user?.following.info]);
 
   return (

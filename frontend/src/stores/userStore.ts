@@ -11,7 +11,7 @@ interface UserState {
 
   setIsOnline: (userId: number, status: boolean) => void;
   setIsLoading: (loading: boolean) => void;
-  setSocketIsAlive: (alive: boolean) => void;
+  setSocketIsAlive: (alive: boolean | ((prev: boolean) => boolean)) => void;
   setServerIsAlive: (alive: boolean) => void;
 }
 
@@ -28,6 +28,11 @@ export const useUserStore = create<UserState>((set) => ({
         .concat({ userId, status }),
     })),
   setIsLoading: (loading) => set({ isLoading: loading }),
-  setSocketIsAlive: (alive) => set({ socketIsAlive: alive }),
+  setSocketIsAlive: (alive) => {
+    set((state) => ({
+      socketIsAlive:
+        typeof alive === "function" ? alive(state.socketIsAlive) : alive,
+    }));
+  },
   setServerIsAlive: (alive) => set({ serverIsAlive: alive }),
 }));

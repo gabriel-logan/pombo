@@ -5,6 +5,7 @@ import { useUserStore } from "../stores/userStore";
 
 export function useServerHealth(intervalMs = 10000) {
   const setServerIsAlive = useUserStore((s) => s.setServerIsAlive);
+
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
@@ -12,13 +13,22 @@ export function useServerHealth(intervalMs = 10000) {
 
     async function check() {
       setIsChecking(true);
+
       try {
         const res = await apiInstance.get("/");
-        if (!cancelled) setServerIsAlive(res.status === 200);
+
+        if (!cancelled) {
+          setServerIsAlive(res.status === 200);
+        }
       } catch {
-        if (!cancelled) setServerIsAlive(false);
+        if (!cancelled) {
+          setServerIsAlive(false);
+        }
       }
-      if (!cancelled) setIsChecking(false);
+
+      if (!cancelled) {
+        setIsChecking(false);
+      }
     }
 
     check();

@@ -33,7 +33,7 @@ export default function App() {
             if (restoring) {
               return "Restoring session...";
             } else {
-              return "Server is down. Trying to reconnect...";
+              return "Server is down. Trying to reconnect... Please wait.";
             }
           })()}
         </Text>

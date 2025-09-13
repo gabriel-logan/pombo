@@ -17,6 +17,7 @@ export async function initDB() {
         });
 
         store.createIndex("roomId", "roomId", { unique: false });
+        store.createIndex("clientMsgId", "clientMsgId", { unique: true });
       }
     };
 

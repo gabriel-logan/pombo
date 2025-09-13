@@ -1,6 +1,6 @@
 import * as SQLite from "expo-sqlite";
 
-import type { Message } from "../types/ChatDB";
+import type { Message, MessageWithoutID } from "../types/ChatDB";
 import { chatDBKey } from "../utils/constants";
 
 let db: SQLite.SQLiteDatabase | null = null;
@@ -19,22 +19,26 @@ export async function initDB() {
     `);
 }
 
-export async function saveMessage(
-  roomId: string,
-  text: string,
-  sender: string,
-) {
-  const createdAt = Date.now();
-
+export async function saveMessage({
+  text,
+  roomId,
+  sender,
+  clientMsgId,
+  createdAt,
+}: MessageWithoutID) {
   if (!db) throw new Error("SQLite not initialized");
 
   await db.runAsync(
-    "INSERT INTO messages (roomId, text, sender, createdAt) VALUES (?, ?, ?, ?)",
-    [roomId, text, sender, createdAt],
+    "INSERT INTO messages (roomId, text, sender, clientMsgId, createdAt) VALUES (?, ?, ?, ?, ?)",
+    [roomId, text, sender, clientMsgId, createdAt],
   );
 }
 
-export async function loadMessages(roomId: string): Promise<Message[]> {
+export async function loadMessages({
+  roomId,
+}: {
+  roomId: string;
+}): Promise<Message[]> {
   if (!db) throw new Error("SQLite not initialized");
 
   return (
@@ -45,13 +49,13 @@ export async function loadMessages(roomId: string): Promise<Message[]> {
   );
 }
 
-export async function deleteMessage(messageId: number) {
+export async function deleteMessage({ messageId }: { messageId: number }) {
   if (!db) throw new Error("SQLite not initialized");
 
   await db.runAsync("DELETE FROM messages WHERE id = ?", [messageId]);
 }
 
-export async function deleteChat(roomId: string) {
+export async function deleteChat({ roomId }: { roomId: string }) {
   if (!db) throw new Error("SQLite not initialized");
 
   await db.runAsync("DELETE FROM messages WHERE roomId = ?", [roomId]);

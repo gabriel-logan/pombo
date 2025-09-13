@@ -26,7 +26,7 @@ import {
 } from "../lib/chatDB";
 import { getSocket } from "../lib/socketInstance";
 import { useUserStore } from "../stores/userStore";
-import type { Message } from "../types/ChatDB";
+import type { Message, MessageWithoutID } from "../types/ChatDB";
 import type { RootNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
 
@@ -84,8 +84,7 @@ export default function ChatPage() {
     const clientMsgId = `${Date.now()}-${Math.random()}`;
 
     // Local immediate message
-    const newMsg: Message = {
-      id: Date.now(),
+    const newMsg: MessageWithoutID = {
       roomId,
       text: textInput,
       sender: "me",
@@ -95,7 +94,7 @@ export default function ChatPage() {
 
     setMessages((prev) => [...prev, newMsg]);
 
-    await saveMessage(roomId, newMsg.text, "me");
+    await saveMessage(newMsg);
 
     socket?.emit("send-message", {
       room: roomId,
@@ -113,7 +112,7 @@ export default function ChatPage() {
       try {
         await initDB();
 
-        const loadedMessages = await loadMessages(roomId);
+        const loadedMessages = await loadMessages({ roomId });
 
         setMessages(loadedMessages);
 
@@ -131,8 +130,7 @@ export default function ChatPage() {
               return prev;
             }
 
-            const newMsg: Message = {
-              id: Date.now(),
+            const newMsg: MessageWithoutID = {
               roomId,
               text: data.message,
               sender: data.senderId === myId ? "me" : "other",
@@ -141,7 +139,7 @@ export default function ChatPage() {
             };
 
             // salva no banco também
-            saveMessage(roomId, newMsg.text, newMsg.sender);
+            saveMessage(newMsg);
 
             return [...prev, newMsg];
           });
@@ -285,7 +283,7 @@ export default function ChatPage() {
                 onPress={() => {
                   if (Platform.OS === "web") {
                     if (confirm("Do you want to delete ALL messages?")) {
-                      deleteChat(roomId).then(() => {
+                      deleteChat({ roomId }).then(() => {
                         setMessages([]);
                       });
                     }
@@ -299,7 +297,7 @@ export default function ChatPage() {
                           text: "Apagar tudo",
                           style: "destructive",
                           onPress: () => {
-                            deleteChat(roomId).then(() => {
+                            deleteChat({ roomId }).then(() => {
                               setMessages([]);
                             });
                           },

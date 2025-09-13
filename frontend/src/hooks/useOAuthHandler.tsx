@@ -11,7 +11,7 @@ interface OAuthHandlerProps {
 }
 
 export default function useOAuthHandler({ setIsLoading }: OAuthHandlerProps) {
-  const { signIn, signOut } = useAuthStore((state) => state);
+  const { signIn, signOut } = useAuthStore();
 
   const [params, setParams] = useState<Linking.QueryParams | null>(null);
 

@@ -37,7 +37,7 @@ function getRoomId(userId1: number, userId2: number) {
 }
 
 export default function ChatPage() {
-  const { isOnline, setIsOnline } = useUserStore((state) => state);
+  const { isOnline, setIsOnline } = useUserStore();
 
   const { params } = useRoute<ChatPageProps["route"]>();
 

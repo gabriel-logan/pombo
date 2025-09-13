@@ -19,7 +19,7 @@ import colors from "../utils/colors";
 type MainPageProps = RootDrawerScreenProps<"MainPage">;
 
 export default function MainPage() {
-  const { user } = useAuthStore((state) => state);
+  const { user } = useAuthStore();
 
   const navigation = useNavigation<MainPageProps["navigation"]>();
 

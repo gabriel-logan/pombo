@@ -9,9 +9,9 @@ import { useUserStore } from "../stores/userStore";
 import colors from "../utils/colors";
 
 export default function ProfilePage() {
-  const { isLoading, setIsLoading } = useUserStore((state) => state);
+  const { isLoading, setIsLoading } = useUserStore();
 
-  const { signOut, user } = useAuthStore((state) => state);
+  const { signOut, user } = useAuthStore();
 
   const navigation = useNavigation();
 

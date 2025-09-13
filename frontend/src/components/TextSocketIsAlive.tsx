@@ -5,7 +5,7 @@ import { useUserStore } from "../stores/userStore";
 import colors from "../utils/colors";
 
 export default function TextSocketIsAlive() {
-  const { socketIsAlive } = useUserStore((state) => state);
+  const { socketIsAlive } = useUserStore();
 
   return (
     <View style={styles.container}>

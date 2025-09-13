@@ -10,7 +10,7 @@ interface RedirectLoggedInHandlerProps {
 export default function useRedirectLoggedInHandler({
   setIsLoading,
 }: RedirectLoggedInHandlerProps) {
-  const { isLoggedIn } = useAuthStore((state) => state);
+  const { isLoggedIn } = useAuthStore();
 
   const navigation = useNavigation();
 

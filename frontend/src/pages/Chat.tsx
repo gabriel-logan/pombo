@@ -67,7 +67,8 @@ export default function ChatPage() {
     if (!textInput.trim()) return;
 
     if (socketIsAlive === false) {
-      const alertSocketOffMsg = "Cannot send message: Socket is disconnected.";
+      const alertSocketOffMsg =
+        "Cannot send message: Socket is disconnected. Try logging out and back in or restarting the app. If the problem persists, please contact support.";
 
       if (Platform.OS === "web") {
         alert(alertSocketOffMsg);

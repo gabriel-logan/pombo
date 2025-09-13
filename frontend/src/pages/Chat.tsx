@@ -37,7 +37,7 @@ function getRoomId(userId1: number, userId2: number) {
 }
 
 export default function ChatPage() {
-  const { isOnline, setIsOnline } = useUserStore();
+  const { socketIsAlive, isOnline, setIsOnline } = useUserStore();
 
   const { params } = useRoute<ChatPageProps["route"]>();
 
@@ -65,6 +65,18 @@ export default function ChatPage() {
 
   async function handleSendMessage() {
     if (!textInput.trim()) return;
+
+    if (socketIsAlive === false) {
+      const alertSocketOffMsg = "Cannot send message: Socket is disconnected.";
+
+      if (Platform.OS === "web") {
+        alert(alertSocketOffMsg);
+      } else {
+        Alert.alert("Error", alertSocketOffMsg);
+      }
+
+      return;
+    }
 
     const socket = getSocket();
 

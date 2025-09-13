@@ -22,12 +22,12 @@ import {
   deleteMessage,
   initDB,
   loadMessages,
-  Message,
   saveMessage,
 } from "../lib/chatDB";
 import { getSocket } from "../lib/socketInstance";
 import { useUserStore } from "../stores/userStore";
-import { RootNativeStackScreenProps } from "../types/Navigation";
+import type { Message } from "../types/ChatDB";
+import type { RootNativeStackScreenProps } from "../types/Navigation";
 import colors from "../utils/colors";
 
 type ChatPageProps = RootNativeStackScreenProps<"ChatPage">;

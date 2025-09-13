@@ -1,15 +1,7 @@
+import type { Message } from "../types/ChatDB";
 import { chatDBKey } from "../utils/constants";
 
 let idb: IDBDatabase | null = null;
-
-export interface Message {
-  id: number;
-  roomId: string;
-  text: string;
-  sender: string;
-  createdAt: number;
-  clientMsgId: string;
-}
 
 export async function initDB() {
   return await new Promise<void>((resolve, reject) => {

@@ -138,10 +138,10 @@ export default function ChatPage() {
               clientMsgId: data.clientMsgId,
             };
 
-            // salva no banco também
+            // Save incoming message to DB
             saveMessage(newMsg);
 
-            return [...prev, { id: -1, ...newMsg }];
+            return [...prev, { id: Date.now(), ...newMsg }];
           });
         });
 

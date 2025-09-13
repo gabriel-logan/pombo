@@ -11,15 +11,15 @@ export function useServerHealth(intervalMs = 10000) {
 
     async function checkServerAlive() {
       try {
-        const res = await apiInstance.get("/");
-
         if (!cancelled) {
+          const res = await apiInstance.get("/");
+
           setServerIsAlive(res.status === 200);
+
+          cancelled = true;
         }
       } catch {
-        if (!cancelled) {
-          setServerIsAlive(false);
-        }
+        setServerIsAlive(false);
       }
     }
 

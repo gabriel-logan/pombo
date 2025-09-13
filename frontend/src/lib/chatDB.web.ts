@@ -81,11 +81,19 @@ export async function deleteMessage({ clientMsgId }: { clientMsgId: string }) {
 
   return await new Promise<void>((resolve, reject) => {
     const tx = idb!.transaction("messages", "readwrite");
+    const store = tx.objectStore("messages");
+    const index = store.index("clientMsgId");
 
-    tx.objectStore("messages").delete(clientMsgId);
+    const request = index.getKey(clientMsgId);
+
+    request.onsuccess = () => {
+      const key = request.result;
+      if (key !== undefined) {
+        store.delete(key);
+      }
+    };
 
     tx.oncomplete = () => resolve();
-
     tx.onerror = () =>
       reject(new Error(tx.error?.message || "Failed to delete message"));
   });

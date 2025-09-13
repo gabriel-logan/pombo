@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 
 import TextSocketIsAlive from "./src/components/TextSocketIsAlive";
+import apiInstance from "./src/lib/apiInstance";
 import { getSocket } from "./src/lib/socketInstance";
 import RootNativeStackNavigator from "./src/router/RootNativeStack";
 import { useAuthStore } from "./src/stores/authStore";
@@ -11,15 +12,29 @@ import { useUserStore } from "./src/stores/userStore";
 import colors from "./src/utils/colors";
 
 export default function App() {
-  const { socketIsAlive, setSocketIsAlive } = useUserStore((state) => state);
+  const { serverIsAlive, setServerIsAlive, setSocketIsAlive } = useUserStore(
+    (state) => state,
+  );
 
   const restoreSession = useAuthStore((state) => state.restoreSession);
 
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    function checkServerAlive() {
+    async function checkServerAlive() {
       setIsLoading(true);
+
+      try {
+        const response = await apiInstance.get("/");
+
+        if (response.status === 200) {
+          setServerIsAlive(true);
+        }
+      } catch {
+        setServerIsAlive(false);
+        // eslint-disable-next-line no-console
+        console.log("Server is down");
+      }
 
       const socket = getSocket();
 
@@ -46,7 +61,7 @@ export default function App() {
     restoreSession().finally(() => setIsLoading(false));
   }, [restoreSession]);
 
-  if (isLoading || !socketIsAlive) {
+  if (isLoading || !serverIsAlive) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#0099ff" />

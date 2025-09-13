@@ -8,16 +8,19 @@ interface UserState {
   }[];
   isLoading: boolean;
   socketIsAlive: boolean;
+  serverIsAlive: boolean;
 
   setIsOnline: (userId: number, status: boolean) => void;
   setIsLoading: (loading: boolean) => void;
   setSocketIsAlive: Dispatch<React.SetStateAction<boolean>>;
+  setServerIsAlive: Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const useUserStore = create<UserState>((set) => ({
   isOnline: [],
   isLoading: false,
   socketIsAlive: false,
+  serverIsAlive: false,
 
   setIsOnline: (userId, status) =>
     set((state) => ({
@@ -31,6 +34,13 @@ export const useUserStore = create<UserState>((set) => ({
       socketIsAlive:
         typeof callback === "function"
           ? callback(state.socketIsAlive)
+          : callback,
+    })),
+  setServerIsAlive: (callback) =>
+    set((state) => ({
+      serverIsAlive:
+        typeof callback === "function"
+          ? callback(state.serverIsAlive)
           : callback,
     })),
 }));

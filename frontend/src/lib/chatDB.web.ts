@@ -31,30 +31,25 @@ export async function initDB() {
   });
 }
 
-export async function saveMessage({
-  text,
-  roomId,
-  sender,
-  clientMsgId,
-  createdAt,
-}: MessageWithoutID) {
+export async function saveMessage(message: MessageWithoutID): Promise<Message> {
   if (!idb) throw new Error("IndexedDB not initialized");
 
-  return await new Promise<void>((resolve, reject) => {
+  return await new Promise<Message>((resolve, reject) => {
     const tx = idb!.transaction("messages", "readwrite");
+    const store = tx.objectStore("messages");
 
-    tx.objectStore("messages").add({
-      roomId,
-      text,
-      sender,
-      clientMsgId,
-      createdAt,
-    });
+    const request = store.add(message);
 
-    tx.oncomplete = () => resolve();
+    request.onsuccess = () => {
+      resolve({
+        id: request.result as number,
+        ...message,
+      });
+    };
 
-    tx.onerror = () =>
+    request.onerror = () => {
       reject(new Error(tx.error?.message || "Failed to save message"));
+    };
   });
 }
 

@@ -19,19 +19,20 @@ export async function initDB() {
     `);
 }
 
-export async function saveMessage({
-  text,
-  roomId,
-  sender,
-  clientMsgId,
-  createdAt,
-}: MessageWithoutID) {
+export async function saveMessage(message: MessageWithoutID): Promise<Message> {
   if (!db) throw new Error("SQLite not initialized");
 
-  await db.runAsync(
+  const { roomId, text, sender, clientMsgId, createdAt } = message;
+
+  const result = await db.runAsync(
     "INSERT INTO messages (roomId, text, sender, clientMsgId, createdAt) VALUES (?, ?, ?, ?, ?)",
     [roomId, text, sender, clientMsgId, createdAt],
   );
+
+  return {
+    id: result.lastInsertRowId,
+    ...message,
+  };
 }
 
 export async function loadMessages({

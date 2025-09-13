@@ -13,7 +13,7 @@ import colors from "./src/utils/colors";
 
 export default function App() {
   const { serverIsAlive } = useUserStore();
-  const restoreSession = useAuthStore((s) => s.restoreSession);
+  const { restoreSession } = useAuthStore();
 
   const [restoring, setRestoring] = useState(true);
 

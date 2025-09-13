@@ -3,13 +3,16 @@ import { Platform } from "react-native";
 import * as Linking from "expo-linking";
 
 import apiInstance from "../lib/apiInstance";
+import { useAuthStore } from "../stores/authStore";
 import type { AuthUser } from "../types/Auth";
 
-export default function useOAuthHandler(
-  signIn: (user: AuthUser) => Promise<void>,
-  signOut: () => Promise<void>,
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-) {
+interface OAuthHandlerProps {
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export default function useOAuthHandler({ setIsLoading }: OAuthHandlerProps) {
+  const { signIn, signOut } = useAuthStore((state) => state);
+
   const [params, setParams] = useState<Linking.QueryParams | null>(null);
 
   const consumedRef = useRef(false); // To prevent multiple consumptions of the same (QUERY) code

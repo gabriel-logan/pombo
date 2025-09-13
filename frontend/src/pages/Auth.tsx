@@ -6,19 +6,16 @@ import BtnSignInWithGithub from "../components/BtnSignInWithGithub";
 import Loading from "../components/Loading";
 import useOAuthHandler from "../hooks/useOAuthHandler";
 import useRedirectLoggedInHandler from "../hooks/useRedirectLoggedInHandler";
-import { useAuthStore } from "../stores/authStore";
 import colors from "../utils/colors";
 
 export default function AuthPage() {
-  const { signIn, signOut } = useAuthStore((state) => state);
-
   const [isLoading, setIsLoading] = useState(true);
 
   // If already logged in, redirect to the main app
   useRedirectLoggedInHandler({ setIsLoading });
 
   // Handle OAuth Sign-In flow
-  useOAuthHandler(signIn, signOut, setIsLoading);
+  useOAuthHandler({ setIsLoading });
 
   if (isLoading) {
     return <Loading />;

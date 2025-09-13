@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useAuthStore } from "../stores/authStore";
 
 interface RedirectLoggedInHandlerProps {
-  setIsLoading: (loading: boolean) => void;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function useRedirectLoggedInHandler({

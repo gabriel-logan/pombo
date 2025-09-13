@@ -1,3 +1,4 @@
+import type { Dispatch } from "react";
 import { create } from "zustand";
 
 interface UserState {
@@ -10,7 +11,7 @@ interface UserState {
 
   setIsOnline: (userId: number, status: boolean) => void;
   setIsLoading: (loading: boolean) => void;
-  setServerIsAlive: (callback: boolean | ((prev: boolean) => boolean)) => void;
+  setServerIsAlive: Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const useUserStore = create<UserState>((set) => ({

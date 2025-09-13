@@ -4,8 +4,8 @@ import { Octicons } from "@expo/vector-icons";
 import { useUserStore } from "../stores/userStore";
 import colors from "../utils/colors";
 
-export default function TextServerIsAlive() {
-  const { serverIsAlive } = useUserStore((state) => state);
+export default function TextSocketIsAlive() {
+  const { socketIsAlive } = useUserStore((state) => state);
 
   return (
     <View style={styles.container}>
@@ -13,7 +13,7 @@ export default function TextServerIsAlive() {
         name="dot-fill"
         size={26}
         color={
-          serverIsAlive ? colors.light.statusSuccess : colors.light.statusError
+          socketIsAlive ? colors.light.statusSuccess : colors.light.statusError
         }
       />
     </View>

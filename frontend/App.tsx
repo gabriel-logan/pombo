@@ -3,7 +3,7 @@ import { ActivityIndicator, Text, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 
-import TextServerIsAlive from "./src/components/TextServerIsAlive";
+import TextSocketIsAlive from "./src/components/TextSocketIsAlive";
 import { getSocket } from "./src/lib/socketInstance";
 import RootNativeStackNavigator from "./src/router/RootNativeStack";
 import { useAuthStore } from "./src/stores/authStore";
@@ -11,7 +11,7 @@ import { useUserStore } from "./src/stores/userStore";
 import colors from "./src/utils/colors";
 
 export default function App() {
-  const { serverIsAlive, setServerIsAlive } = useUserStore((state) => state);
+  const { socketIsAlive, setSocketIsAlive } = useUserStore((state) => state);
 
   const restoreSession = useAuthStore((state) => state.restoreSession);
 
@@ -26,11 +26,11 @@ export default function App() {
       if (!socket) return;
 
       socket.emit("check-alive", (data: { status: boolean }) => {
-        setServerIsAlive((prev) => (prev !== data.status ? data.status : prev));
+        setSocketIsAlive((prev) => (prev !== data.status ? data.status : prev));
       });
 
       if (socket.disconnected) {
-        setServerIsAlive(false);
+        setSocketIsAlive(false);
       }
 
       setIsLoading(false);
@@ -40,13 +40,13 @@ export default function App() {
     const interval = setInterval(checkServerAlive, 5000);
 
     return () => clearInterval(interval);
-  }, [setIsLoading, setServerIsAlive]);
+  }, [setIsLoading, setSocketIsAlive]);
 
   useEffect(() => {
     restoreSession().finally(() => setIsLoading(false));
   }, [restoreSession]);
 
-  if (isLoading || !serverIsAlive) {
+  if (isLoading || !socketIsAlive) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#0099ff" />
@@ -66,7 +66,7 @@ export default function App() {
     <NavigationContainer>
       <StatusBar style="auto" />
       <RootNativeStackNavigator />
-      <TextServerIsAlive />
+      <TextSocketIsAlive />
     </NavigationContainer>
   );
 }

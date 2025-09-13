@@ -6,14 +6,17 @@ interface UserState {
     status: boolean;
   }[];
   isLoading: boolean;
+  serverIsAlive: boolean;
 
   setIsOnline: (userId: number, status: boolean) => void;
   setIsLoading: (loading: boolean) => void;
+  setServerIsAlive: (callback: boolean | ((prev: boolean) => boolean)) => void;
 }
 
 export const useUserStore = create<UserState>((set) => ({
   isOnline: [],
   isLoading: false,
+  serverIsAlive: false,
 
   setIsOnline: (userId, status) =>
     set((state) => ({
@@ -22,4 +25,11 @@ export const useUserStore = create<UserState>((set) => ({
         .concat({ userId, status }),
     })),
   setIsLoading: (loading) => set({ isLoading: loading }),
+  setServerIsAlive: (callback) =>
+    set((state) => ({
+      serverIsAlive:
+        typeof callback === "function"
+          ? callback(state.serverIsAlive)
+          : callback,
+    })),
 }));

@@ -1,43 +1,12 @@
-import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Octicons } from "@expo/vector-icons";
 
-import { getSocket } from "../lib/socketInstance";
+import { useUserStore } from "../stores/userStore";
 import colors from "../utils/colors";
 
-interface TextServerIsAliveProps {
-  setIsLoading: (isLoading: boolean) => void;
-}
+export default function TextServerIsAlive() {
+  const { serverIsAlive } = useUserStore((state) => state);
 
-export default function TextServerIsAlive({
-  setIsLoading,
-}: Readonly<TextServerIsAliveProps>) {
-  const [serverIsAlive, setServerIsAlive] = useState(false);
-
-  useEffect(() => {
-    function checkServerAlive() {
-      setIsLoading(true);
-
-      const socket = getSocket();
-
-      if (!socket) return;
-
-      socket.emit("check-alive", (data: { status: boolean }) => {
-        setServerIsAlive((prev) => (prev !== data.status ? data.status : prev));
-      });
-
-      if (socket.disconnected) {
-        setServerIsAlive(false);
-      }
-
-      setIsLoading(false);
-    }
-
-    checkServerAlive();
-    const interval = setInterval(checkServerAlive, 5000);
-
-    return () => clearInterval(interval);
-  }, [setIsLoading]);
   return (
     <View style={styles.container}>
       <Octicons
@@ -54,7 +23,7 @@ export default function TextServerIsAlive({
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    top: 6,
-    right: 10,
+    top: 4,
+    right: 8,
   },
 });

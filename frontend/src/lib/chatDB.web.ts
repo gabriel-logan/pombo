@@ -75,13 +75,13 @@ export async function loadMessages({
   });
 }
 
-export async function deleteMessage({ messageId }: { messageId: number }) {
+export async function deleteMessage({ clientMsgId }: { clientMsgId: string }) {
   if (!idb) throw new Error("IndexedDB not initialized");
 
   return await new Promise<void>((resolve, reject) => {
     const tx = idb!.transaction("messages", "readwrite");
 
-    tx.objectStore("messages").delete(messageId);
+    tx.objectStore("messages").delete(clientMsgId);
 
     tx.oncomplete = () => resolve();
 

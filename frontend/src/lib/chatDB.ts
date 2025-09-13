@@ -50,10 +50,12 @@ export async function loadMessages({
   );
 }
 
-export async function deleteMessage({ messageId }: { messageId: number }) {
+export async function deleteMessage({ clientMsgId }: { clientMsgId: string }) {
   if (!db) throw new Error("SQLite not initialized");
 
-  await db.runAsync("DELETE FROM messages WHERE id = ?", [messageId]);
+  await db.runAsync("DELETE FROM messages WHERE clientMsgId = ?", [
+    clientMsgId,
+  ]);
 }
 
 export async function deleteChat({ roomId }: { roomId: string }) {

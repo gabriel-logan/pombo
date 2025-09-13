@@ -53,7 +53,7 @@ export default function ChatPage() {
   // With debounce - typing indicator
   const typingTimeout = useRef<NodeJS.Timeout>(null);
   // FlatList reference
-  const flatListRef = useRef<FlatList>(null);
+  const flatListRef = useRef<FlatList<Message>>(null);
 
   function notImplementedAlert() {
     if (Platform.OS === "web") {
@@ -317,7 +317,7 @@ export default function ChatPage() {
         <FlatList
           ref={flatListRef}
           data={messages}
-          keyExtractor={(_, index) => index.toString()}
+          keyExtractor={(data) => data.clientMsgId}
           style={styles.chatArea}
           contentContainerStyle={{ paddingBottom: 20 }}
           onContentSizeChange={() =>
@@ -331,11 +331,15 @@ export default function ChatPage() {
               onLongPress={() => {
                 if (Platform.OS === "web") {
                   if (confirm("Do you want to delete this message?")) {
-                    deleteMessage(item.id).then(() => {
-                      setMessages((prev) =>
-                        prev.filter((msg) => msg.id !== item.id),
-                      );
-                    });
+                    deleteMessage({ clientMsgId: item.clientMsgId }).then(
+                      () => {
+                        setMessages((prev) =>
+                          prev.filter(
+                            (msg) => msg.clientMsgId !== item.clientMsgId,
+                          ),
+                        );
+                      },
+                    );
                   }
                 } else {
                   Alert.alert(
@@ -347,11 +351,15 @@ export default function ChatPage() {
                         text: "Delete",
                         style: "destructive",
                         onPress: () => {
-                          deleteMessage(item.id).then(() => {
-                            setMessages((prev) =>
-                              prev.filter((msg) => msg.id !== item.id),
-                            );
-                          });
+                          deleteMessage({ clientMsgId: item.clientMsgId }).then(
+                            () => {
+                              setMessages((prev) =>
+                                prev.filter(
+                                  (msg) => msg.clientMsgId !== item.clientMsgId,
+                                ),
+                              );
+                            },
+                          );
                         },
                       },
                     ],

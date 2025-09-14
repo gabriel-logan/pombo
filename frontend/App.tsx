@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, Platform, Text, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 
@@ -33,7 +33,7 @@ function ServerAwaiting({ restoring }: Readonly<ServerAwaitingProps>) {
 }
 
 export default function App() {
-  const { serverIsAlive } = useUserStore();
+  const { serverIsAlive, setLocales } = useUserStore();
   const { restoreSession } = useAuthStore();
 
   const [restoring, setRestoring] = useState(true);
@@ -42,8 +42,15 @@ export default function App() {
   useSocketHealth(3000);
 
   useEffect(() => {
+    if (Platform.OS === "web") {
+      const userLocales = navigator.languages;
+      setLocales([...userLocales]);
+    } else {
+      setLocales(["en-US"]);
+    }
+
     restoreSession().finally(() => setRestoring(false));
-  }, [restoreSession]);
+  }, [restoreSession, setLocales]);
 
   if (restoring || !serverIsAlive) {
     return <ServerAwaiting restoring={restoring} />;

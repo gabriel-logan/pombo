@@ -8,11 +8,13 @@ interface UserState {
   isLoading: boolean;
   socketIsAlive: boolean;
   serverIsAlive: boolean;
+  locales: string[];
 
   setIsOnline: (userId: number, status: boolean) => void;
   setIsLoading: (loading: boolean) => void;
   setSocketIsAlive: (alive: boolean | ((prev: boolean) => boolean)) => void;
   setServerIsAlive: (alive: boolean) => void;
+  setLocales: (locales: string[]) => void;
 }
 
 export const useUserStore = create<UserState>((set) => ({
@@ -20,6 +22,7 @@ export const useUserStore = create<UserState>((set) => ({
   isLoading: false,
   socketIsAlive: false,
   serverIsAlive: false,
+  locales: [],
 
   setIsOnline: (userId, status) =>
     set((state) => ({
@@ -35,4 +38,5 @@ export const useUserStore = create<UserState>((set) => ({
     }));
   },
   setServerIsAlive: (alive) => set({ serverIsAlive: alive }),
+  setLocales: (locales) => set({ locales }),
 }));

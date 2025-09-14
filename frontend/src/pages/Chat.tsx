@@ -37,7 +37,7 @@ function getRoomId(userId1: number, userId2: number) {
 }
 
 export default function ChatPage() {
-  const { socketIsAlive, isOnline, setIsOnline } = useUserStore();
+  const { socketIsAlive, locales, isOnline, setIsOnline } = useUserStore();
 
   const { params } = useRoute<ChatPageProps["route"]>();
 
@@ -344,7 +344,7 @@ export default function ChatPage() {
           }
           renderItem={({ item }) => {
             const date = new Date(item.createdAt);
-            const formattedTime = date.toLocaleTimeString([], {
+            const formattedTime = date.toLocaleTimeString(locales, {
               hour: "2-digit",
               minute: "2-digit",
             });

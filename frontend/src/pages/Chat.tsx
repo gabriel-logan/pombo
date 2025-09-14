@@ -336,10 +336,10 @@ export default function ChatPage() {
           }
           renderItem={({ item }) => (
             <TouchableOpacity
-              onLongPress={() => {
+              onLongPress={async () => {
                 if (Platform.OS === "web") {
                   if (confirm("Do you want to delete this message?")) {
-                    handleDeleteMessage(item.clientMsgId);
+                    return await handleDeleteMessage(item.clientMsgId);
                   }
                 } else {
                   Alert.alert(
@@ -351,7 +351,7 @@ export default function ChatPage() {
                         text: "Delete",
                         style: "destructive",
                         onPress: () => {
-                          handleDeleteMessage(item.clientMsgId);
+                          return void handleDeleteMessage(item.clientMsgId);
                         },
                       },
                     ],

@@ -142,6 +142,17 @@ export default function ChatPage() {
 
         socket?.emit("join-room", roomId);
 
+        loadedMessages
+          .filter((msg) => msg.sender === "me" && msg.status === "sent")
+          .forEach((msg) => {
+            // Re-send unsent messages
+            socket?.emit("send-message", {
+              room: msg.roomId,
+              message: msg.text,
+              clientMsgId: msg.clientMsgId,
+            });
+          });
+
         // New message listener
         socket?.on("new-message", async (data) => {
           setMessages((prev) => {

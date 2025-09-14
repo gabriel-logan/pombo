@@ -34,6 +34,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       senderId: number;
       message: string;
       timestamp: number;
+      clientMsgId: string;
     }>
   > = new Map();
 
@@ -214,6 +215,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       this.offlineMessages.get(room)!.push(msgData);
+    }
+  }
+
+  @SubscribeMessage("delete-message")
+  handleDeleteMessage(
+    @MessageBody() data: { room: string; clientMsgId: string },
+  ): void {
+    const messages = this.offlineMessages.get(data.room);
+
+    if (messages) {
+      const filteredMessages = messages.filter(
+        (msg) => msg.clientMsgId !== data.clientMsgId,
+      );
+
+      this.offlineMessages.set(data.room, filteredMessages);
     }
   }
 

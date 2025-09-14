@@ -106,11 +106,15 @@ export default function ChatPage() {
   }
 
   async function handleDeleteMessage(clientMsgId: string) {
+    const socket = getSocket();
+
     await deleteMessage({ clientMsgId });
 
     setMessages((prev) =>
       prev.filter((msg) => msg.clientMsgId !== clientMsgId),
     );
+
+    socket?.emit("delete-message", { room: roomId, clientMsgId });
   }
 
   useEffect(() => {

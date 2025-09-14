@@ -159,15 +159,11 @@ export default function ChatPage() {
 
         // Status online/offline
         socket?.on("user-online", ({ userId }) => {
-          if (userId === otherId) {
-            setIsOnline(userId, true);
-          }
+          setIsOnline(userId, true);
         });
 
         socket?.on("user-offline", ({ userId }) => {
-          if (userId === otherId) {
-            setIsOnline(userId, false);
-          }
+          setIsOnline(userId, false);
         });
 
         // Typing indicator

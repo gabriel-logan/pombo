@@ -105,6 +105,14 @@ export default function ChatPage() {
     setTextInput("");
   }
 
+  async function handleDeleteMessage(clientMsgId: string) {
+    await deleteMessage({ clientMsgId });
+
+    setMessages((prev) =>
+      prev.filter((msg) => msg.clientMsgId !== clientMsgId),
+    );
+  }
+
   useEffect(() => {
     const socket = getSocket();
 
@@ -331,15 +339,7 @@ export default function ChatPage() {
               onLongPress={() => {
                 if (Platform.OS === "web") {
                   if (confirm("Do you want to delete this message?")) {
-                    deleteMessage({ clientMsgId: item.clientMsgId }).then(
-                      () => {
-                        setMessages((prev) =>
-                          prev.filter(
-                            (msg) => msg.clientMsgId !== item.clientMsgId,
-                          ),
-                        );
-                      },
-                    );
+                    handleDeleteMessage(item.clientMsgId);
                   }
                 } else {
                   Alert.alert(
@@ -351,15 +351,7 @@ export default function ChatPage() {
                         text: "Delete",
                         style: "destructive",
                         onPress: () => {
-                          deleteMessage({ clientMsgId: item.clientMsgId }).then(
-                            () => {
-                              setMessages((prev) =>
-                                prev.filter(
-                                  (msg) => msg.clientMsgId !== item.clientMsgId,
-                                ),
-                              );
-                            },
-                          );
+                          handleDeleteMessage(item.clientMsgId);
                         },
                       },
                     ],

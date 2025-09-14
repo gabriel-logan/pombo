@@ -197,12 +197,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       timestamp: Date.now(),
     } as const;
 
-    // Acknowledge to sender that message is sent
-    client.emit("message-status", {
-      clientMsgId,
-      status: "sent",
-    });
-
     const roomSockets = this.server.sockets.adapter.rooms.get(room);
     const connectedCount = roomSockets ? roomSockets.size : 0;
 
@@ -216,6 +210,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       this.offlineMessages.get(room)!.push(msgData);
     }
+
+    // Acknowledge to sender that message is sent
+    client.emit("message-status", {
+      clientMsgId,
+      status: "sent",
+    });
   }
 
   @SubscribeMessage("delete-message")

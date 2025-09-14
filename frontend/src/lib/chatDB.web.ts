@@ -74,6 +74,51 @@ export async function saveMessage(message: MessageWithoutID): Promise<Message> {
   });
 }
 
+export async function updateMessageStatus({
+  clientMsgId,
+  status,
+}: {
+  clientMsgId: string;
+  status: Message["status"];
+}): Promise<void> {
+  if (!idb) throw new Error("IndexedDB not initialized");
+
+  return await new Promise<void>((resolve, reject) => {
+    const tx = idb!.transaction("messages", "readwrite");
+    const store = tx.objectStore("messages");
+
+    const index = store.index("clientMsgId");
+
+    const getRequest = index.get(clientMsgId);
+
+    getRequest.onsuccess = () => {
+      const message = getRequest.result as Message | undefined;
+
+      if (message) {
+        message.status = status;
+
+        const updateRequest = store.put(message);
+
+        updateRequest.onsuccess = () => {
+          resolve();
+        };
+
+        updateRequest.onerror = () => {
+          reject(
+            new Error(
+              updateRequest.error?.message || "Failed to update status",
+            ),
+          );
+        };
+      }
+
+      getRequest.onerror = () => {
+        reject(new Error(getRequest.error?.message || "Failed to get message"));
+      };
+    };
+  });
+}
+
 export async function loadMessages({
   roomId,
 }: {

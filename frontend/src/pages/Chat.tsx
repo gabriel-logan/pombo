@@ -23,6 +23,7 @@ import {
   initDB,
   loadMessages,
   saveMessage,
+  updateMessageStatus,
 } from "../lib/chatDB";
 import { getSocket } from "../lib/socketInstance";
 import { useUserStore } from "../stores/userStore";
@@ -159,11 +160,18 @@ export default function ChatPage() {
               sender: data.senderId === myId ? "me" : "other",
               createdAt: data.timestamp,
               clientMsgId: data.clientMsgId,
-              status: "sent",
+              status: data.senderId === myId ? "sent" : "delivered",
             };
 
             // Save incoming message to DB
             saveMessage(newMsg);
+
+            if (data.senderId !== myId) {
+              socket.emit("message-delivered", {
+                clientMsgId: data.clientMsgId,
+                room: roomId,
+              });
+            }
 
             return [...prev, { id: Date.now(), ...newMsg }];
           });
@@ -243,6 +251,46 @@ export default function ChatPage() {
       }
     };
   }, [myId, roomId, textInput]);
+
+  // Mark messages as read when received
+  useEffect(() => {
+    const unreadMessages = messages.filter(
+      (msg) => msg.sender === "other" && msg.status !== "read",
+    );
+
+    if (unreadMessages.length > 0) {
+      const socket = getSocket();
+      unreadMessages.forEach((msg) => {
+        socket?.emit("message-read", { clientMsgId: msg.clientMsgId });
+      });
+
+      // Atualiza localmente para evitar reenvio
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.sender === "other" ? { ...msg, status: "read" } : msg,
+        ),
+      );
+    }
+  }, [messages]);
+
+  // Update message statuses
+  useEffect(() => {
+    const socket = getSocket();
+
+    socket?.on("message-status", async ({ clientMsgId, status }) => {
+      await updateMessageStatus({ clientMsgId, status });
+
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.clientMsgId === clientMsgId ? { ...msg, status } : msg,
+        ),
+      );
+    });
+
+    return () => {
+      socket?.off("message-status");
+    };
+  }, []);
 
   useEffect(() => {
     flatListRef.current?.scrollToEnd({ animated: true });

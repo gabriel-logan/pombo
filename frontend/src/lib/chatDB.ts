@@ -41,6 +41,21 @@ export async function saveMessage(message: MessageWithoutID): Promise<Message> {
   };
 }
 
+export async function updateMessageStatus({
+  clientMsgId,
+  status,
+}: {
+  clientMsgId: string;
+  status: Message["status"];
+}): Promise<void> {
+  if (!db) throw new Error("SQLite not initialized");
+
+  await db.runAsync("UPDATE messages SET status = ? WHERE clientMsgId = ?", [
+    status,
+    clientMsgId,
+  ]);
+}
+
 export async function loadMessages({
   roomId,
 }: {

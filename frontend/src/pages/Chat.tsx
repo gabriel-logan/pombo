@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
-import { Ionicons, Octicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons, Octicons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 
 import BtnGoBack from "../components/BtnGoBack";
@@ -89,6 +89,7 @@ export default function ChatPage() {
       text: textInput,
       sender: "me",
       createdAt: Date.now(),
+      status: "pending",
       clientMsgId,
     };
 
@@ -158,6 +159,7 @@ export default function ChatPage() {
               sender: data.senderId === myId ? "me" : "other",
               createdAt: data.timestamp,
               clientMsgId: data.clientMsgId,
+              status: "sent",
             };
 
             // Save incoming message to DB
@@ -379,6 +381,32 @@ export default function ChatPage() {
                 >
                   {item.text}
                 </Text>
+
+                {/* Status icon */}
+                {item.sender === "me" && (
+                  <View style={styles.statusIcon}>
+                    {item.status === "pending" && (
+                      <MaterialIcons
+                        name="access-time"
+                        size={16}
+                        color="#aaa"
+                      />
+                    )}
+                    {item.status === "sent" && (
+                      <MaterialIcons name="check" size={16} color="#aaa" />
+                    )}
+                    {item.status === "delivered" && (
+                      <MaterialIcons name="done-all" size={16} color="#aaa" />
+                    )}
+                    {item.status === "read" && (
+                      <MaterialIcons
+                        name="done-all"
+                        size={16}
+                        color="#4FC3F7"
+                      />
+                    )}
+                  </View>
+                )}
               </View>
             </TouchableOpacity>
           )}
@@ -527,6 +555,12 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 15,
     color: colors.light.textMain,
+  },
+
+  statusIcon: {
+    position: "absolute",
+    bottom: 4,
+    right: 8,
   },
 
   inputBar: {

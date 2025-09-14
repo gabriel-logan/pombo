@@ -22,11 +22,11 @@ export async function initDB() {
 export async function saveMessage(message: MessageWithoutID): Promise<Message> {
   if (!db) throw new Error("SQLite not initialized");
 
-  const { roomId, text, sender, clientMsgId, createdAt } = message;
+  const { roomId, text, sender, clientMsgId, status, createdAt } = message;
 
   const result = await db.runAsync(
-    "INSERT INTO messages (roomId, text, sender, clientMsgId, createdAt) VALUES (?, ?, ?, ?, ?)",
-    [roomId, text, sender, clientMsgId, createdAt],
+    "INSERT INTO messages (roomId, text, sender, clientMsgId, status, createdAt) VALUES (?, ?, ?, ?, ?, ?)",
+    [roomId, text, sender, clientMsgId, status, createdAt],
   );
 
   return {

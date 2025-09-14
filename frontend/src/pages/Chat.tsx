@@ -342,74 +342,96 @@ export default function ChatPage() {
           ListEmptyComponent={
             <Text style={styles.noMessage}>No messages found.</Text>
           }
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onLongPress={async () => {
-                if (Platform.OS === "web") {
-                  if (confirm("Do you want to delete this message?")) {
-                    return await handleDeleteMessage(item.clientMsgId);
-                  }
-                } else {
-                  Alert.alert(
-                    "Delete Message",
-                    "Do you want to delete this message?",
-                    [
-                      { text: "Cancel", style: "cancel" },
-                      {
-                        text: "Delete",
-                        style: "destructive",
-                        onPress: () => {
-                          return void handleDeleteMessage(item.clientMsgId);
+          renderItem={({ item }) => {
+            const date = new Date(item.createdAt);
+            const formattedTime = date.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+
+            return (
+              <TouchableOpacity
+                onLongPress={async () => {
+                  if (Platform.OS === "web") {
+                    if (confirm("Do you want to delete this message?")) {
+                      return await handleDeleteMessage(item.clientMsgId);
+                    }
+                  } else {
+                    Alert.alert(
+                      "Delete Message",
+                      "Do you want to delete this message?",
+                      [
+                        { text: "Cancel", style: "cancel" },
+                        {
+                          text: "Delete",
+                          style: "destructive",
+                          onPress: () => {
+                            return void handleDeleteMessage(item.clientMsgId);
+                          },
                         },
-                      },
-                    ],
-                  );
-                }
-              }}
-            >
-              <View
-                style={[
-                  styles.message,
-                  item.sender === "me" ? styles.myMessage : styles.otherMessage,
-                ]}
+                      ],
+                    );
+                  }
+                }}
               >
-                <Text
+                <View
                   style={[
-                    styles.messageText,
-                    item.sender === "me" && { color: "#fff" },
+                    styles.message,
+                    item.sender === "me"
+                      ? styles.myMessage
+                      : styles.otherMessage,
                   ]}
                 >
-                  {item.text}
-                </Text>
-
-                {/* Status icon */}
-                {item.sender === "me" && (
-                  <View style={styles.statusIcon}>
-                    {item.status === "pending" && (
-                      <MaterialIcons
-                        name="access-time"
-                        size={16}
-                        color="#aaa"
-                      />
-                    )}
-                    {item.status === "sent" && (
-                      <MaterialIcons name="check" size={16} color="#aaa" />
-                    )}
-                    {item.status === "delivered" && (
-                      <MaterialIcons name="done-all" size={16} color="#aaa" />
-                    )}
-                    {item.status === "read" && (
-                      <MaterialIcons
-                        name="done-all"
-                        size={16}
-                        color="#4FC3F7"
-                      />
-                    )}
-                  </View>
-                )}
-              </View>
-            </TouchableOpacity>
-          )}
+                  <Text
+                    style={[
+                      styles.messageText,
+                      item.sender === "me" && { color: "#fff" },
+                    ]}
+                  >
+                    {item.text}
+                  </Text>
+                  {/* Hora + Status */}
+                  {item.sender === "me" && (
+                    <View style={styles.metaContainer}>
+                      <Text style={styles.timeText}>{formattedTime}</Text>
+                      {item.status && (
+                        <View style={styles.statusIcon}>
+                          {item.status === "pending" && (
+                            <MaterialIcons
+                              name="access-time"
+                              size={14}
+                              color="#ccc"
+                            />
+                          )}
+                          {item.status === "sent" && (
+                            <MaterialIcons
+                              name="check"
+                              size={14}
+                              color="#ccc"
+                            />
+                          )}
+                          {item.status === "delivered" && (
+                            <MaterialIcons
+                              name="done-all"
+                              size={14}
+                              color="#ccc"
+                            />
+                          )}
+                          {item.status === "read" && (
+                            <MaterialIcons
+                              name="done-all"
+                              size={14}
+                              color="#4FC3F7"
+                            />
+                          )}
+                        </View>
+                      )}
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
+            );
+          }}
         />
 
         {/* Typing */}
@@ -557,10 +579,24 @@ const styles = StyleSheet.create({
     color: colors.light.textMain,
   },
 
+  metaContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    marginTop: 4,
+  },
+
+  timeText: {
+    fontSize: 10,
+    color: "#ccc",
+    marginRight: 4,
+  },
+
   statusIcon: {
-    position: "absolute",
-    bottom: 4,
-    right: 8,
+    width: 16,
+    height: 16,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   inputBar: {

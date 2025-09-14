@@ -233,6 +233,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage("delete-chat")
+  handleDeleteChat(@MessageBody() data: { room: string }): void {
+    if (this.offlineMessages.has(data.room)) {
+      this.offlineMessages.delete(data.room);
+    }
+  }
+
   @SubscribeMessage("message-delivered")
   handleMessageDelivered(@MessageBody() data: { clientMsgId: string }): void {
     const { clientMsgId } = data;

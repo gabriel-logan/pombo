@@ -117,6 +117,16 @@ export default function ChatPage() {
     socket?.emit("delete-message", { room: roomId, clientMsgId });
   }
 
+  async function handleDeleteChat() {
+    const socket = getSocket();
+
+    await deleteChat({ roomId });
+
+    setMessages([]);
+
+    socket?.emit("delete-chat", { room: roomId });
+  }
+
   useEffect(() => {
     const socket = getSocket();
 
@@ -288,12 +298,10 @@ export default function ChatPage() {
 
             <View style={styles.iconsRight}>
               <TouchableOpacity
-                onPress={() => {
+                onPress={async () => {
                   if (Platform.OS === "web") {
                     if (confirm("Do you want to delete ALL messages?")) {
-                      deleteChat({ roomId }).then(() => {
-                        setMessages([]);
-                      });
+                      return await handleDeleteChat();
                     }
                   } else {
                     Alert.alert(
@@ -305,9 +313,7 @@ export default function ChatPage() {
                           text: "Apagar tudo",
                           style: "destructive",
                           onPress: () => {
-                            deleteChat({ roomId }).then(() => {
-                              setMessages([]);
-                            });
+                            return void handleDeleteChat();
                           },
                         },
                       ],

@@ -288,7 +288,7 @@ export default function ChatPage() {
   useEffect(() => {
     const socket = getSocket();
 
-    socket?.on("message-status", async ({ clientMsgId, status }) => {
+    socket?.on("update-message-status", async ({ clientMsgId, status }) => {
       await updateMessageStatus({ clientMsgId, status });
 
       setMessages((prev) =>
@@ -299,7 +299,7 @@ export default function ChatPage() {
     });
 
     return () => {
-      socket?.off("message-status");
+      socket?.off("update-message-status");
     };
   }, []);
 

@@ -35,6 +35,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       message: string;
       timestamp: number;
       clientMsgId: string;
+      status: "pending" | "sent" | "delivered" | "read" | "failed";
     }>
   > = new Map();
 
@@ -195,6 +196,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       message,
       senderId: parseInt(authenticatedClientId, 10),
       timestamp: Date.now(),
+      status: "pending",
     } as const;
 
     const roomSockets = this.server.sockets.adapter.rooms.get(room);
@@ -212,7 +214,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     // Acknowledge to sender that message is sent
-    client.emit("message-status", {
+    client.emit("update-message-status", {
       clientMsgId,
       status: "sent",
     });
@@ -245,7 +247,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const { clientMsgId } = data;
 
     // Notify sender that message is delivered
-    this.server.emit("message-status", {
+    this.server.emit("update-message-status", {
       clientMsgId,
       status: "delivered",
     });
@@ -256,7 +258,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const { clientMsgId } = data;
 
     // Notify sender that message is read
-    this.server.emit("message-status", {
+    this.server.emit("update-message-status", {
       clientMsgId,
       status: "read",
     });

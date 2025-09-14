@@ -390,44 +390,39 @@ export default function ChatPage() {
                   >
                     {item.text}
                   </Text>
+
                   {/* Hora + Status */}
-                  {item.sender === "me" && (
-                    <View style={styles.metaContainer}>
-                      <Text style={styles.timeText}>{formattedTime}</Text>
-                      {item.status && (
-                        <View style={styles.statusIcon}>
-                          {item.status === "pending" && (
-                            <MaterialIcons
-                              name="access-time"
-                              size={14}
-                              color="#ccc"
-                            />
-                          )}
-                          {item.status === "sent" && (
-                            <MaterialIcons
-                              name="check"
-                              size={14}
-                              color="#ccc"
-                            />
-                          )}
-                          {item.status === "delivered" && (
-                            <MaterialIcons
-                              name="done-all"
-                              size={14}
-                              color="#ccc"
-                            />
-                          )}
-                          {item.status === "read" && (
-                            <MaterialIcons
-                              name="done-all"
-                              size={14}
-                              color="#4FC3F7"
-                            />
-                          )}
-                        </View>
-                      )}
-                    </View>
-                  )}
+                  <View style={styles.metaContainer}>
+                    <Text style={styles.timeText}>{formattedTime}</Text>
+                    {item.sender === "me" && item.status && (
+                      <View style={styles.statusIcon}>
+                        {item.status === "pending" && (
+                          <MaterialIcons
+                            name="access-time"
+                            size={14}
+                            color="#ccc"
+                          />
+                        )}
+                        {item.status === "sent" && (
+                          <MaterialIcons name="check" size={14} color="#ccc" />
+                        )}
+                        {item.status === "delivered" && (
+                          <MaterialIcons
+                            name="done-all"
+                            size={14}
+                            color="#ccc"
+                          />
+                        )}
+                        {item.status === "read" && (
+                          <MaterialIcons
+                            name="done-all"
+                            size={14}
+                            color="#4FC3F7"
+                          />
+                        )}
+                      </View>
+                    )}
+                  </View>
                 </View>
               </TouchableOpacity>
             );

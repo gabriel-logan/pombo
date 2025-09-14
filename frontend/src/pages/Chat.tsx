@@ -17,6 +17,7 @@ import { useRoute } from "@react-navigation/native";
 
 import BtnGoBack from "../components/BtnGoBack";
 import Loading from "../components/Loading";
+import WebRTCCall from "../components/WebRTCCall";
 import {
   deleteChat,
   deleteMessage,
@@ -318,6 +319,8 @@ export default function ChatPage() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
+        <WebRTCCall myId={myId} otherId={otherId} />
+
         {/* HEADER */}
         <View style={styles.header}>
           <BtnGoBack />

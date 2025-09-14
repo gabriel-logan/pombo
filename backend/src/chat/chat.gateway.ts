@@ -292,7 +292,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  @SubscribeMessage("call-user")
+  @SubscribeMessage("call-user-request")
   handleCallUser(
     @MessageBody() data: { targetId: number; offer: unknown },
     @ConnectedSocket() client: Socket,
@@ -315,13 +315,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  @SubscribeMessage("answer-call")
+  @SubscribeMessage("call-user-accept")
   handleAnswerCall(
     @MessageBody()
-    data: { targetId: number; answer: unknown; accepted: boolean },
+    data: { targetId: number },
     @ConnectedSocket() client: Socket,
   ): void {
-    const { targetId, answer, accepted } = data;
+    const { targetId } = data;
 
     const responderId = parseInt(client.user!.sub, 10);
 
@@ -332,20 +332,40 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
 
-    this.server.to(targetSocketId).emit("call-answered", {
+    this.server.to(targetSocketId).emit("call-user-accepted", {
       from: responderId,
-      answer,
-      accepted,
+      answer: true,
     });
   }
 
-  @SubscribeMessage("end-call")
-  handleEndCall(
+  @SubscribeMessage("call-user-reject")
+  handleRejectCall(
     @MessageBody() data: { targetId: number },
     @ConnectedSocket() client: Socket,
   ): void {
     const { targetId } = data;
 
+    const responderId = parseInt(client.user!.sub, 10);
+
+    const targetSocketId = this.onlineUsers.get(targetId);
+
+    if (!targetSocketId) {
+      client.emit("call-error", { message: "User is offline" });
+      return;
+    }
+
+    this.server.to(targetSocketId).emit("call-user-rejected", {
+      from: responderId,
+      answer: false,
+    });
+  }
+
+  @SubscribeMessage("sdp-user-offer")
+  handleSDPOffer(
+    @MessageBody() data: { targetId: number; offer: unknown },
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const { targetId, offer } = data;
     const senderId = parseInt(client.user!.sub, 10);
 
     const targetSocketId = this.onlineUsers.get(targetId);
@@ -354,13 +374,34 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
 
-    this.server.to(targetSocketId).emit("call-ended", {
+    this.server.to(targetSocketId).emit("sdp-user-offer", {
       from: senderId,
+      offer,
     });
   }
 
-  @SubscribeMessage("candidate")
-  handleCandidate(
+  @SubscribeMessage("sdp-user-answer")
+  handleSDPAnswer(
+    @MessageBody() data: { targetId: number; answer: unknown },
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const { targetId, answer } = data;
+    const senderId = parseInt(client.user!.sub, 10);
+
+    const targetSocketId = this.onlineUsers.get(targetId);
+
+    if (!targetSocketId) {
+      return;
+    }
+
+    this.server.to(targetSocketId).emit("sdp-user-answer", {
+      from: senderId,
+      answer,
+    });
+  }
+
+  @SubscribeMessage("ice-candidate")
+  handleIceCandidate(
     @MessageBody() data: { targetId: number; candidate: unknown },
     @ConnectedSocket() client: Socket,
   ): void {
@@ -373,9 +414,28 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
 
-    this.server.to(targetSocketId).emit("candidate", {
+    this.server.to(targetSocketId).emit("ice-candidate", {
       from: senderId,
       candidate,
+    });
+  }
+
+  @SubscribeMessage("hang-up-call")
+  handleHangUpCall(
+    @MessageBody() data: { targetId: number },
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const { targetId } = data;
+    const senderId = parseInt(client.user!.sub, 10);
+
+    const targetSocketId = this.onlineUsers.get(targetId);
+
+    if (!targetSocketId) {
+      return;
+    }
+
+    this.server.to(targetSocketId).emit("call-hanged-up", {
+      from: senderId,
     });
   }
 }

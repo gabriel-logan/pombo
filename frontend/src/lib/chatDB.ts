@@ -19,6 +19,12 @@ export async function initDB() {
     `);
 }
 
+export async function dropDB() {
+  if (!db) throw new Error("SQLite not initialized");
+
+  await db.execAsync("DROP TABLE IF EXISTS messages;");
+}
+
 export async function saveMessage(message: MessageWithoutID): Promise<Message> {
   if (!db) throw new Error("SQLite not initialized");
 

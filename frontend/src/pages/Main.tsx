@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: colors.light.borderLight,
-    backgroundColor: colors.light.backgroundInput,
+    backgroundColor: colors.light.backgroundApp,
   },
 
   searchInput: {

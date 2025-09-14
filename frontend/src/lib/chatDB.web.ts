@@ -32,6 +32,26 @@ export async function initDB() {
   });
 }
 
+export async function dropDB() {
+  if (!idb) throw new Error("IndexedDB not initialized");
+
+  idb.close();
+
+  return await new Promise<void>((resolve, reject) => {
+    const deleteRequest = window.indexedDB.deleteDatabase(chatDBKey);
+
+    deleteRequest.onsuccess = () => {
+      resolve();
+    };
+
+    deleteRequest.onerror = () => {
+      reject(
+        new Error(deleteRequest.error?.message || "Failed to drop database"),
+      );
+    };
+  });
+}
+
 export async function saveMessage(message: MessageWithoutID): Promise<Message> {
   if (!idb) throw new Error("IndexedDB not initialized");
 
